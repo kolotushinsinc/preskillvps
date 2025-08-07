@@ -17,8 +17,15 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  }
-  
+  },
+  server: {
+    host: true,
+    port: 5173,
+    allowedHosts: [
+      'cabinetsklg.koltech.dev' // Добавь сюда свой домен
+    ]
+  },
+
   // optimizeDeps: {
   //   exclude: ['lucide-react'],
   // },
