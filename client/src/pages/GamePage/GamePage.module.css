@@ -13,7 +13,7 @@
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
     background: none;
     border: none;
     cursor: pointer;
@@ -32,8 +32,8 @@
 .gameIcon {
     width: 60px;
     height: 60px;
-    background-color: #1e293b; /* slate-800 */
-    border: 1px solid #334155; /* slate-700 */
+    background-color: #1e293b;
+    border: 1px solid #334155;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -91,16 +91,16 @@
 }
 
 .statusWaiting {
-    background-color: #fffbeb; /* yellow-50 */
+    background-color: #fffbeb;
 }
 .statusTurn {
-    background-color: #f0fdf4; /* green-50 */
+    background-color: #f0fdf4;
 }
 .statusOpponentTurn {
-    background-color: #eff6ff; /* blue-50 */
+    background-color: #eff6ff;
 }
 .statusGameEnd {
-    background-color: #f8fafc; /* slate-50 */
+    background-color: #f8fafc;
 }
 
 .statusIcon {
@@ -119,7 +119,7 @@
 
 
 .statusCountdown p {
-    color: #4b5563; /* gray-600 */
+    color: #4b5563;
     margin-bottom: 0.5rem;
 }
 
@@ -139,9 +139,9 @@
     background-color: #1d4ed8;
 }
 .btnDanger {
-    background-color: #dc2626; /* red-600 */
+    background-color: #dc2626;
     color: white;
 }
 .btnDanger:hover {
-    background-color: #b91c1c; /* red-700 */
+    background-color: #b91c1c;
 }

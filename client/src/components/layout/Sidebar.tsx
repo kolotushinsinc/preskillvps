@@ -1,15 +1,15 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useUI } from '../../context/UIContext'; // Импортируем useUI
+import { useUI } from '../../context/UIContext';
 import styles from './Sidebar.module.css';
 import { Home, Gamepad2, Trophy, User as UserIcon, Crown, ShieldCheck, LogOut } from 'lucide-react';
-import Avatar from '../../components/common/Avatar'; // 1. Импортируем новый компонент
+import Avatar from '../../components/common/Avatar';
 
 
 const Sidebar: React.FC = () => {
     const { user, logout } = useAuth();
-    const { isSidebarOpen, setSidebarOpen } = useUI(); // Берем состояние и функцию из контекста
+    const { isSidebarOpen, setSidebarOpen } = useUI();
 
     const menuItems = [
         { path: '/', icon: Home, label: 'Dashboard' },
@@ -24,7 +24,6 @@ const Sidebar: React.FC = () => {
         `${styles.navLink} ${isActive ? styles.active : ''}`;
 
     const handleLinkClick = () => {
-        // Закрываем сайдбар только если экран узкий (мобильная версия)
         if (window.innerWidth < 1024) {
              setSidebarOpen(false);
         }
@@ -37,7 +36,6 @@ const Sidebar: React.FC = () => {
             )}
 
             <div className={`${styles.sidebarContainer} ${isSidebarOpen ? styles.open : ''}`}>
-                {/* <div className={styles.logoArea}> */}
                     <Link to="/" onClick={handleLinkClick} className={styles.logoArea}>
                         <div className={styles.logoIconContainer}><Crown /></div>
                         <div className={styles.logoText}>
@@ -45,7 +43,6 @@ const Sidebar: React.FC = () => {
                             <p>Game platform</p>
                         </div>
                     </Link>
-                {/* </div> */}
 
                 <nav className={styles.nav}>
                     {menuItems.map((item) => (
@@ -55,7 +52,6 @@ const Sidebar: React.FC = () => {
                             end={item.path === '/'}
                             onClick={handleLinkClick}
                             className={getNavLinkClass}
-                            // ИСПРАВЛЕНИЕ: Убрали onClick={() => setIsOpen(false)} отсюда
                         >
                             <item.icon />
                             <span>{item.label}</span>

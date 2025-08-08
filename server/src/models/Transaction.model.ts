@@ -22,8 +22,8 @@ const transactionSchema = new Schema<ITransaction>({
         'WITHDRAWAL', 
         'WAGER_LOSS', 
         'WAGER_WIN', 
-        'TOURNAMENT_FEE', // Взнос за участие
-        'TOURNAMENT_WINNINGS' // Выигрыш в турнире
+        'TOURNAMENT_FEE',
+        'TOURNAMENT_WINNINGS'
     ],
     },
     status: {

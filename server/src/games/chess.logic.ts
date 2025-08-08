@@ -8,9 +8,9 @@ type ChessState = {
     moveHistory: ChessMove[];
     moveCount: number;
     isGameOver: boolean;
-    winner?: string; // userId победителя
+    winner?: string;
     isDraw: boolean;
-    turn: string; // userId игрока, чей сейчас ход
+    turn: string;
     lastMove?: {
         from: Position;
         to: Position;
@@ -23,10 +23,9 @@ type ChessMove = {
     promotion?: PieceType;
 };
 
-// Конвертация между нашими типами и типами движка
 function positionFromAlgebraic(algebraic: string): Position {
-    const col = algebraic.charCodeAt(0) - 97; // a=0, b=1, etc.
-    const row = 8 - parseInt(algebraic[1]); // 8=0, 7=1, etc.
+    const col = algebraic.charCodeAt(0) - 97;
+    const row = 8 - parseInt(algebraic[1]);
     return { row, col };
 }
 
@@ -47,11 +46,9 @@ function convertEngineMove(move: any): ChessMove {
     return move;
 }
 
-// Создание движка из состояния игры
 function createEngineFromState(gameState: ChessState): ChessEngine {
     const engine = new ChessEngine();
     
-    // Воспроизводим все ходы
     for (const move of gameState.moveHistory) {
         engine.makeMove(move.from, move.to, move.promotion);
     }
@@ -72,36 +69,31 @@ export const chessLogic: IGameLogic = {
             moveCount: 0,
             isGameOver: false,
             isDraw: false,
-            // @ts-ignore - Добавляем поле turn для совместимости с GamePage
-            turn: players[0]?.user._id.toString() // Первый игрок (белые) ходит первым
+            // @ts-ignore
+            turn: players[0]?.user._id.toString()
         };
     },
 
     processMove(gameState: ChessState, move: ChessMove, playerId: string, players: Room['players']) {
         console.log('[Chess] Processing move:', { move, playerId, currentPlayer: gameState.currentPlayer });
         
-        // Определяем индекс игрока
         const playerIndex = players.findIndex(p => (p.user as any)._id.toString() === playerId);
         if (playerIndex === -1) {
             console.log('[Chess] Player not found');
-            return { newState: gameState, error: "Игрок не найден.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Player not found.", turnShouldSwitch: false };
         }
 
-        // Определяем ожидаемый цвет (0 = белые, 1 = черные)
         const expectedColor: PieceColor = playerIndex === 0 ? 'white' : 'black';
         
-        // Проверяем, что сейчас ход нужного игрока
         if (gameState.currentPlayer !== expectedColor) {
             console.log('[Chess] Wrong player turn. Expected:', expectedColor, 'Actual:', gameState.currentPlayer);
-            return { newState: gameState, error: "Сейчас не ваш ход.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Not your turn.", turnShouldSwitch: false };
         }
 
-        // Создаем движок из текущего состояния
         const engine = createEngineFromState(gameState);
         
         const convertedMove = convertEngineMove(move);
         
-        // Проверяем валидность хода
         const possibleMoves = engine.getPossibleMoves(convertedMove.from);
         const isValidMove = possibleMoves.some(pos =>
             pos.row === convertedMove.to.row && pos.col === convertedMove.to.col
@@ -109,10 +101,9 @@ export const chessLogic: IGameLogic = {
         
         if (!isValidMove) {
             console.log('[Chess] Invalid move');
-            return { newState: gameState, error: "Недопустимый ход.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Invalid move.", turnShouldSwitch: false };
         }
 
-        // Выполняем ход
         const moveSuccess = engine.makeMove(
             convertedMove.from,
             convertedMove.to,
@@ -121,13 +112,11 @@ export const chessLogic: IGameLogic = {
         
         if (!moveSuccess) {
             console.log('[Chess] Move execution failed');
-            return { newState: gameState, error: "Ход не может быть выполнен.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Move cannot be executed.", turnShouldSwitch: false };
         }
 
-        // Проверяем состояние игры
         const gameStatus = engine.getGameStatus();
 
-        // Определяем следующего игрока только если игра не окончена
         let nextTurn = gameState.turn;
         if (!gameStatus.isGameOver) {
             const nextPlayerIndex = playerIndex === 0 ? 1 : 0;
@@ -149,7 +138,6 @@ export const chessLogic: IGameLogic = {
             }
         };
 
-        // Определяем победителя
         if (gameStatus.isGameOver && !gameStatus.isDraw && gameStatus.winner) {
             const winnerIndex = gameStatus.winner === 'white' ? 0 : 1;
             const winner = players[winnerIndex];
@@ -183,16 +171,13 @@ export const chessLogic: IGameLogic = {
         
         const expectedColor: PieceColor = playerIndex === 0 ? 'white' : 'black';
         
-        // Проверяем, что сейчас ход бота
         if (gameState.currentPlayer !== expectedColor) {
             console.log(`[Chess] Bot move requested but it's not bot's turn. Expected: ${expectedColor}, Actual: ${gameState.currentPlayer}`);
             return {};
         }
 
-        // Создаем движок из текущего состояния
         const engine = createEngineFromState(gameState);
         
-        // Находим все возможные ходы для бота
         const allMoves: { from: Position; to: Position; piece: ChessPiece }[] = [];
         
         for (let row = 0; row < 8; row++) {
@@ -214,7 +199,6 @@ export const chessLogic: IGameLogic = {
         console.log('[Chess] Available moves for bot:', allMoves.length);
         
         if (allMoves.length > 0) {
-            // Простая стратегия: приоритет взятиям, затем случайный ход
             const captureMoves = allMoves.filter(move => {
                 const targetPiece = gameState.board[move.to.row][move.to.col];
                 return targetPiece && targetPiece.color !== expectedColor;
@@ -222,11 +206,9 @@ export const chessLogic: IGameLogic = {
             
             let selectedMove;
             if (captureMoves.length > 0) {
-                // Предпочитаем взятия
                 selectedMove = captureMoves[Math.floor(Math.random() * captureMoves.length)];
                 console.log('[Chess] Bot chose capture move');
             } else {
-                // Иначе случайный ход
                 selectedMove = allMoves[Math.floor(Math.random() * allMoves.length)];
                 console.log('[Chess] Bot chose random move');
             }

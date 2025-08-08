@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
-// Интерфейс для турнирного игрока
 export interface ITournamentRoomPlayer {
     _id: string;
     username: string;
@@ -8,17 +7,16 @@ export interface ITournamentRoomPlayer {
     socketId?: string;
 }
 
-// Интерфейс для турнирной комнаты
 export interface ITournamentRoom extends Document {
     _id: Types.ObjectId;
     tournamentId: Types.ObjectId;
     matchId: string;
-    gameType: 'tic-tac-toe' | 'checkers' | 'chess' | 'backgammon';
+    gameType: 'tic-tac-toe' | 'checkers' | 'chess' | 'backgammon' | 'durak' | 'domino' | 'dice' | 'bingo';
     players: ITournamentRoomPlayer[];
     gameState: any;
     status: 'WAITING' | 'ACTIVE' | 'FINISHED';
     winner?: ITournamentRoomPlayer;
-    replayCount: number; // Количество переигровок
+    replayCount: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -36,7 +34,7 @@ const tournamentRoomSchema = new Schema<ITournamentRoom>({
     gameType: {
         type: String,
         required: true,
-        enum: ['tic-tac-toe', 'checkers', 'chess', 'backgammon']
+        enum: ['tic-tac-toe', 'checkers', 'chess', 'backgammon', 'durak', 'domino', 'dice', 'bingo']
     },
     players: [tournamentRoomPlayerSchema],
     gameState: { type: Schema.Types.Mixed },
@@ -51,7 +49,6 @@ const tournamentRoomSchema = new Schema<ITournamentRoom>({
     timestamps: true
 });
 
-// Индексы для быстрого поиска
 tournamentRoomSchema.index({ tournamentId: 1 });
 tournamentRoomSchema.index({ status: 1 });
 

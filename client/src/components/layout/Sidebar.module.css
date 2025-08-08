@@ -1,15 +1,14 @@
 .sidebarContainer {
     position: fixed;
-    inset-y: 0; /* top: 0; bottom: 0; */
+    inset-y: 0;
     left: 0;
     z-index: 50;
-    width: 16rem; /* 256px */
+    width: 16rem;
     background-color: #1e293b;
     border-right: 1px solid #334155;
     display: flex;
     flex-direction: column;
     height: 100vh;
-    /* Анимация появления/исчезновения */
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
 }
@@ -18,10 +17,10 @@
     height: 4.5rem;
     padding: 0 1.5rem;
     display: flex;
-    align-items: center; /* <-- ДОБАВЛЕНО ЭТО СВОЙСТВО */
+    align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid #334155; /* slate-700 */
-    text-decoration: none; /* Убираем подчеркивание у ссылки */
+    border-bottom: 1px solid #334155;
+    text-decoration: none;
 }
 .logoIconContainer {
     width: 40px;
@@ -31,7 +30,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* Предотвращает сжатие иконки */
+    flex-shrink: 0;
 }
 .logoText h1 {
     font-size: 1.25rem;
@@ -41,7 +40,7 @@
 }
 .logoText p {
     font-size: 0.875rem;
-    color: #64748b; /* slate-500 */
+    color: #64748b;
     line-height: 1.2;
 }
 
@@ -68,25 +67,23 @@
     align-items: center;
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease-in-out;
 
-    /* --- ИСПРАВЛЕНИЕ ЗДЕСЬ (для кнопки Выйти) --- */
     background: none;
     border: none;
     cursor: pointer;
-    font-family: inherit; /* Наследуем шрифт */
-    font-size: inherit; /* Наследуем размер шрифта */
-    /* ------------------------------------------- */
+    font-family: inherit;
+    font-size: inherit;
 }
 .navLink:hover {
-    background-color: #334155; /* slate-700 */
+    background-color: #334155;
     color: white;
 }
 .navLink.active {
-    background-color: #2563eb; /* blue-600 */
+    background-color: #2563eb;
     color: white;
 }
 .navLink svg {
@@ -124,7 +121,7 @@
 }
 .userStatus {
     font-size: 0.75rem;
-    color: #64748b; /* slate-500 */
+    color: #64748b;
 }
 
 .sidebarContainer.open {
@@ -138,10 +135,9 @@
     z-index: 40;
 }
 
-/* На больших экранах сайдбар не выезжает, а просто занимает место */
 @media (min-width: 1024px) {
 
     .mobileOverlay {
-        display: none; /* Затемнение не нужно на десктопе */
+        display: none;
     }
 }

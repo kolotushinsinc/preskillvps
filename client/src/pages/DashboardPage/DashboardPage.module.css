@@ -10,7 +10,7 @@
     color: white;
 }
 .header p {
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
 }
 
 .ratingWidget {
@@ -28,7 +28,7 @@
 .ratingWidgetText p:last-child {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #60a5fa; /* blue-400 */
+    color: #60a5fa;
 }
 .ratingWidgetIcon {
     width: 3rem;
@@ -53,8 +53,8 @@
 }
 
 .statCard {
-    background-color: #1e293b; /* slate-800 */
-    border: 1px solid #334155; /* slate-700 */
+    background-color: #1e293b;
+    border: 1px solid #334155;
     border-radius: 12px;
     padding: 1.5rem;
     display: flex;
@@ -149,7 +149,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #334155; /* slate-700 */
+    background-color: #334155;
     padding: 0.75rem;
     border-radius: 8px;
 }
@@ -206,7 +206,7 @@
     display: block;
     text-decoration: none;
     padding: 1rem;
-    border: 1px solid #475569; /* slate-600 */
+    border: 1px solid #475569;
     border-radius: 8px;
     transition: background-color 0.2s;
 }
@@ -225,7 +225,7 @@
 }
 .tournamentItemHeader span {
     font-weight: 700;
-    color: #4ade80; /* green-400 */
+    color: #4ade80;
 }
 .tournamentItemFooter {
     display: flex;

@@ -1,20 +1,18 @@
 .authContainer {
     min-height: 100vh;
-    /* width: 100%; */
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
     background-size: cover;
     background-position: center;
-    /* Убедись, что у тебя есть файл /auth-bg.jpg в папке /public */
     background-image: url('/auth-bg.jpg'); 
 }
 
 .authCard {
     width: 100%;
-    max-width: 420px; /* Ограничиваем ширину формы */
-    background-color: rgba(2, 6, 23, 0.7); /* slate-950 с прозрачностью */
+    max-width: 420px;
+    background-color: rgba(2, 6, 23, 0.7);
     backdrop-filter: blur(12px);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -27,7 +25,6 @@
     margin-bottom: 2rem;
 }
 
-/* Стили для лого, как в сайдбаре */
 .logo {
     display: flex;
     align-items: center;
@@ -56,7 +53,7 @@
     color: white;
 }
 .authSubtitle {
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
     margin-top: 0.25rem;
 }
 
@@ -73,11 +70,11 @@
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
 }
 .formInput {
-    background-color: #1e293b; /* slate-800 */
-    border: 1px solid #475569; /* slate-600 */
+    background-color: #1e293b;
+    border: 1px solid #475569;
     color: white;
     padding: 0.75rem 1rem;
     border-radius: 8px;
@@ -91,11 +88,11 @@
 .alertError {
     padding: 1rem;
     border-radius: 8px;
-    background-color: rgba(239, 68, 68, 0.2); /* red-500 с прозрачностью */
-    color: #fca5a5; /* red-300 */
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
     text-align: center;
     font-size: 0.875rem;
-    border: 1px solid #b91c1c; /* red-700 */
+    border: 1px solid #b91c1c;
 }
 
 .btn {
@@ -144,10 +141,10 @@
 }
 .authLink {
     font-weight: 500;
-    color: #60a5fa; /* blue-400 */
+    color: #60a5fa;
     text-decoration: none;
 }
 .authLink:hover {
     text-decoration: underline;
-    color: #93c5fd; /* blue-300 */
+    color: #93c5fd;
 }

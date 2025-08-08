@@ -5,7 +5,6 @@ import { Edit, Trash2 } from 'lucide-react';
 
 import EditUserModal from '../../components/modals/EditUserModal';
 
-// Тип для пользователя, чтобы TypeScript не ругался
 interface IUser {
     _id: string;
     username: string;
@@ -50,7 +49,7 @@ const UsersPage: React.FC = () => {
         try {
             await updateUser(userId, userData);
             handleCloseEditModal();
-            fetchUsers(); // Обновляем список
+            fetchUsers();
         } catch (error) {
             alert('Не удалось обновить пользователя');
         }
@@ -60,7 +59,7 @@ const UsersPage: React.FC = () => {
         if (window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
             try {
                 await deleteUser(userId);
-                fetchUsers(); // Обновляем список
+                fetchUsers();
             } catch (error) {
                 alert('Не удалось удалить пользователя');
             }

@@ -9,7 +9,6 @@ interface TicTacToeBoardProps {
 
 const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, onMove, isMyTurn, isGameFinished }) => {
     const handleCellClick = (index: number) => {
-        // Запрещаем ход, если не наш ход, игра окончена или клетка занята
         if (!isMyTurn || isGameFinished || board[index]) {
             return;
         }
@@ -34,7 +33,7 @@ const TicTacToeBoard: React.FC<TicTacToeBoardProps> = ({ board, onMove, isMyTurn
                         fontSize: '3rem',
                         fontWeight: 'bold',
                         cursor: isMyTurn && !cell && !isGameFinished ? 'pointer' : 'not-allowed',
-                        color: cell === 'X' ? '#6495ED' : '#FF6347' // Синий для X, красный для O
+                        color: cell === 'X' ? '#6495ED' : '#FF6347'
                     }}
                     disabled={!isMyTurn || isGameFinished || !!cell}
                 >

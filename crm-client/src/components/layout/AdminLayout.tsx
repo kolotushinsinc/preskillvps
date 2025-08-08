@@ -8,7 +8,7 @@ const AdminLayout: React.FC = () => {
         <div className={styles.layoutContainer}>
             <Sidebar />
             <main className={styles.mainContent}>
-                <Outlet /> {/* Здесь будут отображаться наши страницы (Dashboard, Users и т.д.) */}
+                <Outlet />
             </main>
         </div>
     );

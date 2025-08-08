@@ -4,7 +4,7 @@ import styles from './Avatar.module.css';
 import { API_URL } from '../../api/index';
 
 interface AvatarProps {
-    size?: 'small' | 'large'; // Определяем размеры для разных частей интерфейса
+    size?: 'small' | 'large';
 }
 
 const Avatar: React.FC<AvatarProps> = ({ size = 'small' }) => {
@@ -12,7 +12,6 @@ const Avatar: React.FC<AvatarProps> = ({ size = 'small' }) => {
 
     if (!user) return null;
 
-    // Проверяем, есть ли у пользователя загруженный аватар
     const hasUploadedAvatar = user.avatar && user.avatar.startsWith('/uploads');
 
     if (hasUploadedAvatar) {
@@ -25,7 +24,6 @@ const Avatar: React.FC<AvatarProps> = ({ size = 'small' }) => {
         );
     }
 
-    // Если нет, показываем инициалы
     const initials = user.username ? user.username.substring(0, 2).toUpperCase() : '??';
 
     return (

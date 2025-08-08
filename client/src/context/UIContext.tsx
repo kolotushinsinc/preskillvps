@@ -12,7 +12,6 @@ export const UIProvider = ({ children }: { children: ReactNode }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
         try {
             const item = window.localStorage.getItem('sidebarOpen');
-            // По умолчанию сайдбар открыт, если в хранилище ничего нет
             return item ? JSON.parse(item) : true;
         } catch (error) {
             console.error(error);

@@ -9,8 +9,8 @@ import {
     submitKyc
 } from '../controllers/user.controller';
 import { protect } from '../middleware/auth.middleware';
-import { upload } from '../config/multer'; // Импортируем наш multer
-import { uploadKyc } from '../config/multerKyc'; // Импорт нового multer
+import { upload } from '../config/multer';
+import { uploadKyc } from '../config/multerKyc';
 
 const router = Router();
 

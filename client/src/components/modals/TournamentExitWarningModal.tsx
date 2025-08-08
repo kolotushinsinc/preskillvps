@@ -27,7 +27,6 @@ const TournamentExitWarningModal: React.FC<TournamentExitWarningModalProps> = ({
             setCountdown(prev => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    // Автоматически подтверждаем выход, если время истекло
                     onConfirmExit();
                     return 0;
                 }
@@ -40,7 +39,6 @@ const TournamentExitWarningModal: React.FC<TournamentExitWarningModalProps> = ({
 
     const handleReturnToGame = () => {
         onClose();
-        // Не используем navigate если мы уже на правильной странице
         const currentPath = window.location.pathname;
         if (!currentPath.includes(`/tournament-game/${matchId}`)) {
             navigate(`/tournament-game/${matchId}`);

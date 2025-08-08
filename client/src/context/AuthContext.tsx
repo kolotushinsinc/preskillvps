@@ -27,10 +27,8 @@ interface AuthContextType extends AuthState {
   refreshUser: () => Promise<void>;
 }
 
-// Контекст
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Редьюсер
 type AuthAction =
   | { type: 'LOGIN_SUCCESS'; payload: { token: string; user: User } }
   | { type: 'USER_UPDATED'; payload: { user: User } }
@@ -67,7 +65,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-// Провайдер
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, {
     user: null,
@@ -109,7 +106,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Хук
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');

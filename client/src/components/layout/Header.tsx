@@ -13,7 +13,6 @@ const Header: React.FC = () => {
     const { toggleSidebar } = useUI();
     const { socket } = useSocket();
 
-    // Обработчик Socket.IO событий для обновления баланса в реальном времени
     useEffect(() => {
         if (!socket || !user) return;
 
@@ -27,11 +26,9 @@ const Header: React.FC = () => {
                 createdAt: string;
             };
         }) => {
-            // Проверяем, что обновление для текущего пользователя
             if (data.userId === user._id) {
                 console.log('[Header] Balance updated via Socket.IO:', data);
                 
-                // Обновляем контекст пользователя для мгновенного отображения в хедере
                 refreshUser();
             }
         };
@@ -45,7 +42,6 @@ const Header: React.FC = () => {
 
     return (
         <header className={styles.header}>
-            {/* ИСПРАВЛЕНИЕ: Убран класс `lg:hidden`, теперь кнопка видна всегда */}
             <button onClick={toggleSidebar} className={styles.menuButton}>
                 <Menu />
             </button>

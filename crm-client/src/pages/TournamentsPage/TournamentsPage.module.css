@@ -66,14 +66,14 @@
 }
 
 .deleteButton {
-    color: #ef4444; /* red */
+    color: #ef4444;
 }
 .deleteButton:hover {
     background-color: #fee2e2;
 }
 
 .createForm {
-    background-color: #f1f5f9; /* slate-100 */
+    background-color: #f1f5f9;
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;

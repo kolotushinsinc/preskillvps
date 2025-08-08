@@ -5,8 +5,8 @@
 
 .sidebar {
     width: 256px;
-    background-color: #1a2238; /* Темно-синий */
-    color: #a9b3c6; /* Светло-серый текст */
+    background-color: #1a2238;
+    color: #a9b3c6;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -44,7 +44,7 @@
 }
 
 .navLink.active {
-    background-color: #2563eb; /* Синий */
+    background-color: #2563eb;
     color: white;
 }
 
@@ -56,6 +56,6 @@
 
 .mainContent {
     flex-grow: 1;
-    background-color: #f1f5f9; /* Светло-серый фон */
+    background-color: #f1f5f9;
     padding: 2rem;
 }

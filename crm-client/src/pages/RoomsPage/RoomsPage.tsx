@@ -27,7 +27,6 @@ const RoomsPage: React.FC = () => {
         if (window.confirm(`Вы уверены, что хотите закрыть комнату ${roomId}? Игроки будут уведомлены.`)) {
             try {
                 await deleteAdminRoom(roomId);
-                // Обновляем список комнат, удаляя закрытую
                 setRooms(prevRooms => prevRooms.filter(room => room.id !== roomId));
             } catch (error) {
                 alert('Не удалось закрыть комнату.');

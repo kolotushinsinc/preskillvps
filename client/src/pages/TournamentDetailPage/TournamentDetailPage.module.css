@@ -643,7 +643,6 @@
     border: 1px solid #6b7280;
 }
 
-/* Соединительные линии между раундами */
 .round:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -656,7 +655,6 @@
     z-index: 0;
 }
 
-/* Анимация для активных матчей */
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
@@ -668,7 +666,6 @@
     }
 }
 
-/* Специальные стили для финала */
 .round:last-child .roundTitle {
     background: linear-gradient(135deg, #f59e0b, #fbbf24);
     box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
@@ -717,7 +714,6 @@
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;

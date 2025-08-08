@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
-import styles from './LobbyPage.module.css'; // Импортируем стили
+import styles from './LobbyPage.module.css';
 
 interface RoomInfo {
     id: string;
@@ -25,6 +25,8 @@ const getGameIcon = (gameType: string = ''): string => {
         case 'checkers': return '⚫';
         case 'chess': return '♛';
         case 'backgammon': return '🎲';
+        case 'durak': return '🃏';
+        case 'domino': return '🀫';
         default: return '🎮';
     }
 }

@@ -42,7 +42,7 @@
 }
 .statInfo p:last-child {
     font-size: 0.875rem;
-    color: #16a34a; /* green-600 */
+    color: #16a34a;
 }
 
 .statIcon {

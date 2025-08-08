@@ -5,7 +5,6 @@ import { Edit, Trash2, PlusCircle  } from 'lucide-react';
 
 import EditTournamentModal from '../../components/modals/EditTournamentModal';
 
-// Компонент для формы создания, чтобы не загромождать основной
 const CreateTournamentForm: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
     const [name, setName] = useState('');
     const [gameType, setGameType] = useState('chess');
@@ -18,7 +17,7 @@ const CreateTournamentForm: React.FC<{ onFinish: () => void }> = ({ onFinish }) 
         e.preventDefault();
         try {
             await createAdminTournament({ name, gameType, entryFee, maxPlayers, startTime });
-            onFinish(); // Сообщаем родительскому компоненту, что нужно обновить список
+            onFinish();
         } catch (error) {
             alert('Не удалось создать турнир');
         }
@@ -83,7 +82,7 @@ const TournamentsPage: React.FC = () => {
         try {
             await updateAdminTournament(tournamentId, tournamentData);
             handleCloseEditModal();
-            fetchTournaments(); // Обновляем список
+            fetchTournaments();
         } catch (error) {
             alert('Не удалось обновить турнир');
         }
@@ -93,7 +92,7 @@ const TournamentsPage: React.FC = () => {
         if (window.confirm('Вы уверены, что хотите удалить этот турнир?')) {
             try {
                 await deleteAdminTournament(tournamentId);
-                fetchTournaments(); // Обновляем список
+                fetchTournaments();
             } catch (error) {
                 alert('Не удалось удалить турнир.');
             }
@@ -102,7 +101,7 @@ const TournamentsPage: React.FC = () => {
 
     const handleCreationFinish = () => {
         setShowCreateForm(false);
-        fetchTournaments(); // Обновляем список после создания
+        fetchTournaments();
     };
 
     if (loading) return <p>Загрузка турниров...</p>;

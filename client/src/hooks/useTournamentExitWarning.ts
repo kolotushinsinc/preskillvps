@@ -30,10 +30,6 @@ export const useTournamentExitWarning = (
     const interceptedLinkRef = useRef<string | null>(null);
     const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // УБИРАЕМ перехват навигации - он вызывает перезагрузки
-    // Теперь предупреждения показываются только через startExitWarning()
-
-    // Проверяем, есть ли активный таймер при загрузке страницы
     useEffect(() => {
         const savedTimer = localStorage.getItem('tournamentExitTimer');
         if (savedTimer) {
@@ -53,7 +49,6 @@ export const useTournamentExitWarning = (
 
                     startCountdownTimer(remaining);
                 } else {
-                    // Время истекло
                     localStorage.removeItem('tournamentExitTimer');
                     console.log('[TournamentExitWarning] Timer expired on page load, clearing timer');
                 }
@@ -91,7 +86,6 @@ export const useTournamentExitWarning = (
     const startExitWarning = useCallback(() => {
         if (!currentMatchId || !tournamentName) return;
 
-        // Показываем модальное окно предупреждения
         setWarningState({
             isWarningOpen: true,
             isFloatingCountdownOpen: false,
@@ -130,7 +124,6 @@ export const useTournamentExitWarning = (
         
         localStorage.removeItem('tournamentExitTimer');
 
-        // Уведомляем сервер о том, что игрок окончательно покинул матч
         if (socket && currentMatchId) {
             socket.emit('tournamentPlayerForfeited', {
                 matchId: currentMatchId,
@@ -138,7 +131,6 @@ export const useTournamentExitWarning = (
             });
         }
 
-        // Перенаправляем на страницу турниров
         navigate('/tournaments');
     }, [socket, currentMatchId, navigate]);
 
@@ -147,7 +139,6 @@ export const useTournamentExitWarning = (
         handleCloseWarning();
     }, [handleCloseWarning]);
 
-    // Очистка таймера при размонтировании
     useEffect(() => {
         return () => {
             if (countdownTimerRef.current) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from './EditUserModal.module.css'; // Используем те же стили, что и для юзеров
+import styles from './EditUserModal.module.css';
 import { X } from 'lucide-react';
 import type { IUpdateTournamentData, ITournament } from '../../services/adminService';
 
@@ -20,7 +20,6 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ tournament, i
                 gameType: tournament.gameType,
                 entryFee: tournament.entryFee,
                 maxPlayers: tournament.maxPlayers,
-                // Форматируем дату для input[type=datetime-local]
                 startTime: new Date(tournament.startTime).toISOString().slice(0, 16)
             });
         }

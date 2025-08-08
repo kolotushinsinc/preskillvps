@@ -5,7 +5,7 @@ import './index.css';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { SocketProvider } from './context/SocketContext.tsx';
 import { NotificationProvider } from './context/NotificationContext';
-import { UIProvider } from './context/UIContext.tsx'; // 1. Импортируем
+import { UIProvider } from './context/UIContext.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

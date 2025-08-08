@@ -49,12 +49,12 @@
 
 .amountPositive {
     font-weight: 600;
-    color: #16a34a; /* green */
+    color: #16a34a;
 }
 
 .amountNegative {
     font-weight: 600;
-    color: #dc2626; /* red */
+    color: #dc2626;
 }
 
 .statusBadge {

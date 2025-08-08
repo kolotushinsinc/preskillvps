@@ -24,7 +24,6 @@ const TransactionsPage: React.FC = () => {
         return <p>Загрузка транзакций...</p>;
     }
 
-    // Вспомогательная функция для стилизации тегов
     const getTypeStyle = (type: string) => {
         const styleKey = `type_${type.toUpperCase()}`;
         return styles[styleKey] || '';

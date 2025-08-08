@@ -10,7 +10,7 @@
     gap: 1rem;
     padding-bottom: 1.5rem;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #334155; /* slate-700 */
+    border-bottom: 1px solid #334155;
 }
 
 .headerIcon {
@@ -30,24 +30,24 @@
 }
 
 .notificationItem {
-    background-color: #1e293b; /* slate-800 */
-    border: 1px solid #334155; /* slate-700 */
+    background-color: #1e293b;
+    border: 1px solid #334155;
     border-radius: 8px;
     padding: 1.25rem;
     transition: background-color 0.2s;
 }
 
 .notificationItem.unread {
-    border-left: 4px solid #60a5fa; /* blue-400 */
+    border-left: 4px solid #60a5fa;
 }
 
 .notificationItem.read {
-    border-left: 4px solid #475569; /* slate-600 */
+    border-left: 4px solid #475569;
     opacity: 0.7;
 }
 
 .notificationItem:hover {
-    background-color: #334155; /* slate-700 */
+    background-color: #334155;
 }
 
 .clickable {
@@ -62,12 +62,12 @@
 
 .message {
     margin: 0.5rem 0;
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
 }
 
 .date {
     font-size: 0.75rem;
-    color: #64748b; /* slate-500 */
+    color: #64748b;
 }
 
 .emptyState {

@@ -3,7 +3,7 @@
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    max-width: 600px; /* Ограничиваем ширину формы */
+    max-width: 600px;
 }
 
 .header {
@@ -52,7 +52,7 @@
     border: none;
     background-color: #2563eb;
     color: white;
-    align-self: flex-start; /* Кнопка не растягивается */
+    align-self: flex-start;
     transition: background-color 0.2s;
 }
 .formButton:hover {

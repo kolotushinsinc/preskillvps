@@ -10,13 +10,13 @@
 }
 
 .modal {
-    background-color: #1e293b; /* slate-800 */
-    border: 1px solid #334155; /* slate-700 */
+    background-color: #1e293b;
+    border: 1px solid #334155;
     border-radius: 12px;
     padding: 2rem;
     width: 100%;
     max-width: 500px;
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
 }
 
 .header {
@@ -42,7 +42,6 @@
     color: white;
 }
 
-/* Используем стили форм со страницы профиля */
 .form {
     display: flex;
     flex-direction: column;

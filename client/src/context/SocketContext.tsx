@@ -22,7 +22,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      // Обработчик автоматического перенаправления к турнирным играм
       newSocket.on('tournamentMatchReady', (data: {
         tournamentId: string;
         matchId: string;
@@ -31,14 +30,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       }) => {
         console.log('[Tournament] Match ready, redirecting to game:', data);
         
-        // Используем React Router для навигации без перезагрузки страницы
         setTimeout(() => {
-          // Проверяем, не находимся ли мы уже на странице турнирной игры
           if (!window.location.pathname.includes('/tournament-game/')) {
             window.history.pushState(null, '', `/tournament-game/${data.matchId}`);
             window.dispatchEvent(new PopStateEvent('popstate'));
           }
-        }, 1000); // Уменьшаем задержку
+        }, 1000);
       });
 
       setSocket(newSocket);
@@ -61,7 +58,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Кастомный хук для удобного использования
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (context === undefined) {

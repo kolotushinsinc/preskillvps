@@ -1,19 +1,10 @@
-// Import Engine
 import { Request, Response } from 'express';
-
-// Import Models
 import GameRecord from '../models/GameRecord.model';
 import Transaction from '../models/Transaction.model';
 import User from '../models/User.model';
-
-// Import Socket.IO
 import { getIO } from '../socket';
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
 export const getUserProfile = (req: Request, res: Response) => {
-  // Middleware `protect` уже нашел пользователя и добавил его в req.user
   if (req.user) {
     res.json({
       _id: req.user._id,
@@ -26,27 +17,20 @@ export const getUserProfile = (req: Request, res: Response) => {
       kycRejectionReason: req.user.kycRejectionReason
     });
   } else {
-    // Эта ситуация маловероятна, если `protect` отработал корректно
     res.status(404).json({ message: 'User not found' });
   }
 };
 
-// @desc    Get user's game history
-// @route   GET /api/users/history/games
-// @access  Private
 export const getGameHistory = async (req: Request, res: Response) => {
   try {
     const gameHistory = await GameRecord.find({ user: req.user?._id })
-      .sort({ createdAt: -1 }); // Сортируем от новых к старым
+      .sort({ createdAt: -1 });
     res.json(gameHistory);
   } catch (error: any) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// @desc    Get user's transaction history
-// @route   GET /api/users/history/transactions
-// @access  Private
 export const getTransactionHistory = async (req: Request, res: Response) => {
   try {
     const transactionHistory = await Transaction.find({ user: req.user?._id })
@@ -57,9 +41,6 @@ export const getTransactionHistory = async (req: Request, res: Response) => {
   }
 };
 
-// @desc    Update user password
-// @route   PUT /api/users/profile/password
-// @access  Private
 export const updateUserPassword = async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -68,21 +49,18 @@ export const updateUserPassword = async (req: Request, res: Response) => {
   }
 
   try {
-    // 1. Находим пользователя, но в этот раз запрашиваем и его пароль
     const user = await User.findById(req.user?._id).select('+password');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // 2. Проверяем, совпадает ли введенный текущий пароль с паролем в БД
     if (!(await user.comparePassword(currentPassword))) {
       return res.status(401).json({ message: 'Incorrect current password' });
     }
 
-    // 3. Если все верно, обновляем пароль и сохраняем
     user.password = newPassword;
-    await user.save(); // pre-save хук захеширует новый пароль
+    await user.save();
 
     res.json({ message: 'Password updated successfully' });
   } catch (error: any) {
@@ -90,9 +68,6 @@ export const updateUserPassword = async (req: Request, res: Response) => {
   }
 };
 
-// @desc    Update user balance (deposit/withdraw mock)
-// @route   POST /api/users/balance
-// @access  Private
 export const updateUserBalance = async (req: Request, res: Response) => {
   const { amount } = req.body;
   const numericAmount = Number(amount);
@@ -101,26 +76,22 @@ export const updateUserBalance = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid amount provided' });
   }
   
-  const user = req.user!; // Мы уверены, что user есть, благодаря middleware `protect`
+  const user = req.user!;
 
-  // Проверка на достаточность средств при выводе
   if (numericAmount < 0 && user.balance < Math.abs(numericAmount)) {
     return res.status(400).json({ message: 'Insufficient funds for withdrawal' });
   }
 
-  // Обновляем баланс
   user.balance += numericAmount;
   await user.save();
 
-  // Создаем запись о транзакции
   const transaction = await Transaction.create({
     user: user._id,
     type: numericAmount > 0 ? 'DEPOSIT' : 'WITHDRAWAL',
-    amount: Math.abs(numericAmount), // Сумма в транзакции всегда положительная
+    amount: Math.abs(numericAmount),
     status: 'COMPLETED',
   });
 
-  // Отправляем обновление баланса через Socket.IO
   const io = getIO();
   if (io) {
     io.emit('balanceUpdated', {
@@ -135,7 +106,6 @@ export const updateUserBalance = async (req: Request, res: Response) => {
     });
   }
 
-  // Возвращаем обновленные данные пользователя
   res.json({
     _id: user._id,
     username: user.username,
@@ -147,25 +117,18 @@ export const updateUserBalance = async (req: Request, res: Response) => {
   });
 };
 
-/**
- * @desc    Update user avatar
- * @route   PUT /api/users/profile/avatar
- * @access  Private
- */
 export const updateUserAvatar = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.user!._id);
 
         if (!user) {
-            return res.status(404).json({ message: 'Пользователь не найден' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         if (!req.file) {
-            return res.status(400).json({ message: 'Файл не загружен' });
+            return res.status(400).json({ message: 'File not uploaded' });
         }
 
-        // Сохраняем в базу данных путь к файлу
-        // Убираем 'public' из пути, так как мы сделали ее статической
         const avatarPath = '/' + req.file.path.replace(/\\/g, '/').replace('public/', '');
         user.avatar = avatarPath;
         
@@ -180,23 +143,19 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
             role: user.role
         });
     } catch (error: any) {
-        res.status(500).json({ message: 'Ошибка сервера', error: error.message });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
-/**
- * @desc    Submit KYC documents
- * @route   POST /api/users/kyc
- */
 export const submitKyc = async (req: Request, res: Response) => {
     const { documentType } = req.body;
     const user = await User.findById(req.user!._id);
 
-    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+    if (!user) return res.status(404).json({ message: 'User not found' });
     if (user.kycStatus === 'PENDING' || user.kycStatus === 'APPROVED') {
-        return res.status(400).json({ message: 'Вы уже подали заявку или она одобрена.' });
+        return res.status(400).json({ message: 'You have already submitted an application or it has been approved.' });
     }
-    if (!req.file) return res.status(400).json({ message: 'Файл документа не загружен.' });
+    if (!req.file) return res.status(400).json({ message: 'Document file not uploaded.' });
 
     user.kycDocuments.push({
         documentType,
@@ -204,10 +163,9 @@ export const submitKyc = async (req: Request, res: Response) => {
         submittedAt: new Date(),
     });
     user.kycStatus = 'PENDING';
-    user.kycRejectionReason = undefined; // Очищаем причину отказа при новой подаче
+    user.kycRejectionReason = undefined;
     await user.save();
 
-    // Отправляем обновление KYC статуса через Socket.IO
     const io = getIO();
     if (io) {
         io.emit('kycStatusUpdated', {

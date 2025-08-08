@@ -6,9 +6,6 @@ import GameRecord from '../models/GameRecord.model';
 import Transaction from '../models/Transaction.model';
 import { advanceTournamentWinner } from './tournament.service';
 
-/**
- * Сервис для управления игровой логикой
- */
 export class GameService {
     private io: Server;
     private rooms: Record<string, IRoom>;
@@ -18,17 +15,11 @@ export class GameService {
         this.rooms = rooms;
     }
 
-    /**
-     * Проверяет, является ли игрок ботом
-     */
     private isBot(player: GamePlayer): boolean {
         if (!player || !player.user || !player.user._id) return false;
         return player.user._id.toString().startsWith('bot-');
     }
 
-    /**
-     * Форматирует название игры для базы данных
-     */
     private formatGameNameForDB(gameType: string): 'Checkers' | 'Chess' | 'Backgammon' | 'Tic-Tac-Toe' {
         switch (gameType) {
             case 'tic-tac-toe': return 'Tic-Tac-Toe';
@@ -39,17 +30,11 @@ export class GameService {
         }
     }
 
-    /**
-     * Возвращает публичное состояние комнаты
-     */
     private getPublicRoomState(room: IRoom) {
         const { botJoinTimer, disconnectTimer, ...publicState } = room;
         return publicState;
     }
 
-    /**
-     * Обрабатывает ход игрока
-     */
     async processPlayerMove(roomId: string, move: GameMove, playerId: string): Promise<boolean> {
         const room = this.rooms[roomId];
         if (!room || room.players.length < 2 || room.gameState.turn !== playerId) {
@@ -71,17 +56,14 @@ export class GameService {
 
         room.gameState = newState;
         
-        // Проверяем конец игры
         const gameResult = gameLogic.checkGameEnd(room.gameState, room.players);
         if (gameResult.isGameOver) {
             await this.endGame(room, gameResult.winnerId, gameResult.isDraw);
             return true;
         }
         
-        // Отправляем обновление состояния
         this.io.to(roomId).emit('gameUpdate', this.getPublicRoomState(room));
         
-        // Обрабатываем ход бота, если необходимо
         if (turnShouldSwitch) {
             await this.processBotMove(room);
         }
@@ -89,9 +71,6 @@ export class GameService {
         return true;
     }
 
-    /**
-     * Обрабатывает ход бота
-     */
     private async processBotMove(room: IRoom): Promise<void> {
         const currentPlayer = room.players.find(p => 
             p.user._id.toString() === room.gameState.turn
@@ -128,7 +107,6 @@ export class GameService {
 
                 currentRoom.gameState = botProcessResult.newState;
                 
-                // Проверяем конец игры после хода бота
                 const botGameResult = gameLogic.checkGameEnd(currentRoom.gameState, currentRoom.players);
                 if (botGameResult.isGameOver) {
                     await this.endGame(currentRoom, botGameResult.winnerId, botGameResult.isDraw);
@@ -144,25 +122,17 @@ export class GameService {
         }, 1500);
     }
 
-    /**
-     * Завершает игру
-     */
     async endGame(room: IRoom, winnerId?: string, isDraw: boolean = false): Promise<void> {
         console.log(`[GameService] Ending game in room ${room.id}, winner: ${winnerId}, draw: ${isDraw}`);
         
-        // Обработка турнирных игр
         if (room.id.startsWith('tourney-')) {
             await this.endTournamentGame(room, winnerId, isDraw);
             return;
         }
 
-        // Обработка обычных игр
         await this.endRegularGame(room, winnerId, isDraw);
     }
 
-    /**
-     * Завершает турнирную игру
-     */
     private async endTournamentGame(room: IRoom, winnerId?: string, isDraw: boolean = false): Promise<void> {
         const [, tournamentId, , matchIdStr] = room.id.split('-');
         const matchId = parseInt(matchIdStr, 10);
@@ -180,7 +150,6 @@ export class GameService {
                 };
             }
         } else if (isDraw) {
-            // В случае ничьи выбираем случайного победителя
             const randomWinner = room.players[Math.floor(Math.random() * room.players.length)];
             winnerObject = {
                 _id: randomWinner.user._id.toString(),
@@ -189,13 +158,11 @@ export class GameService {
             };
         }
         
-        // Уведомляем игроков о результате
         this.io.to(room.id).emit('gameEnd', { 
             winner: winnerObject ? { user: winnerObject } : null, 
             isDraw 
         });
         
-        // Продвигаем победителя в турнире
         if (winnerObject) {
             await advanceTournamentWinner(this.io, tournamentId, matchId.toString(), winnerObject);
         }
@@ -203,11 +170,7 @@ export class GameService {
         delete this.rooms[room.id];
     }
 
-    /**
-     * Завершает обычную игру
-     */
     private async endRegularGame(room: IRoom, winnerId?: string, isDraw: boolean = false): Promise<void> {
-        // Очищаем таймеры
         if (room.disconnectTimer) clearTimeout(room.disconnectTimer);
         if (room.botJoinTimer) clearTimeout(room.botJoinTimer);
         
@@ -216,7 +179,6 @@ export class GameService {
         const gameNameForDB = this.formatGameNameForDB(room.gameType);
 
         if (isDraw) {
-            // Обработка ничьи
             for (const player of room.players) {
                 if (!this.isBot(player)) {
                     const opponent = room.players.find(p => p.user._id !== player.user._id);
@@ -231,7 +193,6 @@ export class GameService {
             }
             this.io.to(room.id).emit('gameEnd', { winner: null, isDraw: true });
         } else if (winner && loser) {
-            // Обработка победы/поражения
             const globalIO = getIO();
             
             if (!this.isBot(winner)) {
@@ -249,7 +210,6 @@ export class GameService {
                     amount: room.bet
                 });
 
-                // Отправляем обновление баланса через Socket.IO для победителя
                 if (updatedWinner && globalIO) {
                     globalIO.emit('balanceUpdated', {
                         userId: winner.user._id.toString(),
@@ -278,7 +238,6 @@ export class GameService {
                     amount: room.bet
                 });
 
-                // Отправляем обновление баланса через Socket.IO для проигравшего
                 if (updatedLoser && globalIO) {
                     globalIO.emit('balanceUpdated', {
                         userId: loser.user._id.toString(),
@@ -298,13 +257,9 @@ export class GameService {
         const gameType = room.gameType;
         delete this.rooms[room.id];
         
-        // Обновляем список комнат в лобби
         this.broadcastLobbyState(gameType);
     }
 
-    /**
-     * Отправляет обновленный список комнат в лобби
-     */
     private broadcastLobbyState(gameType: string): void {
         const availableRooms = Object.values(this.rooms)
             .filter(room => room.gameType === gameType && room.players.length < 2)
@@ -313,15 +268,12 @@ export class GameService {
                 bet: r.bet, 
                 host: r.players.length > 0 
                     ? r.players[0] 
-                    : { user: { username: 'Ожидание игрока' } } 
+                    : { user: { username: 'Waiting for player' } }
             }));
         
         this.io.to(`lobby-${gameType}`).emit('roomsList', availableRooms);
     }
 
-    /**
-     * Обрабатывает выход игрока из игры
-     */
     async handlePlayerLeave(roomId: string, socketId: string): Promise<void> {
         const room = this.rooms[roomId];
         if (!room) return;
@@ -336,9 +288,6 @@ export class GameService {
         }
     }
 
-    /**
-     * Обрабатывает отключение игрока
-     */
     handlePlayerDisconnect(socketId: string, userId: string): void {
         const roomId = Object.keys(this.rooms).find(id => 
             this.rooms[id].players.some(p => p.socketId === socketId)
@@ -356,7 +305,7 @@ export class GameService {
             this.broadcastLobbyState(room.gameType);
         } else {
             this.io.to(remainingPlayer.socketId).emit('opponentDisconnected', { 
-                message: `Противник отключился. Ожидание переподключения (60 сек)...` 
+                message: `Opponent disconnected. Waiting for reconnection (60 sec)...`
             });
             
             room.disconnectTimer = setTimeout(async () => {

@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 
-// Базовые типы для игр
 export interface IGameUser {
     _id: string;
     username: string;
@@ -25,7 +24,6 @@ export interface IBot {
 
 export type GamePlayer = IPlayer | IBot;
 
-// Типы для турниров
 export interface ITournamentPlayer {
     _id: string;
     username: string;
@@ -44,9 +42,8 @@ export interface ITournamentRound {
     matches: ITournamentMatch[];
 }
 
-// Типы для игровых состояний
 export interface IBaseGameState {
-    turn: string; // userId игрока
+    turn: string;
 }
 
 export interface ITicTacToeState extends IBaseGameState {
@@ -77,7 +74,6 @@ export interface IPiece {
 
 export type IPoint = [playerIndex: 0 | 1, count: number] | null;
 
-// Типы для ходов
 export interface IBasicMove {
     from?: number | string;
     to?: number | string;
@@ -107,10 +103,9 @@ export interface IBackgammonMove extends IBasicMove {
 export type GameMove = ITicTacToeMove | IChessMove | ICheckersMove | IBackgammonMove | Record<string, any>;
 export type GameState = ITicTacToeState | IChessState | ICheckersState | IBackgammonState | Record<string, any>;
 
-// Типы для комнат
 export interface IRoom {
     id: string;
-    gameType: 'tic-tac-toe' | 'checkers' | 'chess' | 'backgammon';
+    gameType: 'tic-tac-toe' | 'checkers' | 'chess' | 'backgammon' | 'durak' | 'domino' | 'dice';
     bet: number;
     players: GamePlayer[];
     gameState: GameState;
@@ -118,21 +113,18 @@ export interface IRoom {
     disconnectTimer?: NodeJS.Timeout;
 }
 
-// Результат игры
 export interface IGameResult {
     isGameOver: boolean;
     winnerId?: string;
     isDraw: boolean;
 }
 
-// Результат обработки хода
 export interface IMoveResult {
     newState: GameState;
     error?: string;
     turnShouldSwitch: boolean;
 }
 
-// Интерфейс для логики игр
 export interface IGameLogic {
     createInitialState(players: GamePlayer[]): GameState;
     processMove(gameState: GameState, move: GameMove, playerId: string, players: GamePlayer[]): IMoveResult;
@@ -140,14 +132,11 @@ export interface IGameLogic {
     makeBotMove(gameState: GameState, playerIndex: 0 | 1): GameMove;
 }
 
-// События сокетов
 export interface ISocketEvents {
-    // Лобби
     joinLobby: (gameType: string) => void;
     leaveLobby: (gameType: string) => void;
     roomsList: (rooms: any[]) => void;
     
-    // Игры
     createRoom: (data: { gameType: string; bet: number }) => void;
     joinRoom: (roomId: string) => void;
     leaveGame: (roomId: string) => void;
@@ -155,20 +144,16 @@ export interface ISocketEvents {
     rollDice: (roomId: string) => void;
     getGameState: (roomId: string) => void;
     
-    // Турниры
     joinTournamentGame: (roomId: string) => void;
     matchReady: (data: { tournamentId: string; roomId: string }) => void;
     tournamentUpdated: (data: { tournamentId: string }) => void;
     
-    // Состояния игры
     gameStart: (roomState: any) => void;
     gameUpdate: (roomState: any) => void;
     gameEnd: (data: { winner: any; isDraw: boolean }) => void;
     
-    // Переподключения
     playerReconnected: (data: { message: string }) => void;
     opponentDisconnected: (data: { message: string }) => void;
     
-    // Ошибки
     error: (data: { message: string }) => void;
 }

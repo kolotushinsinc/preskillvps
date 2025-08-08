@@ -3,24 +3,24 @@ import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
 import { Star } from 'lucide-react';
 
-// 1. Расширяем данные для каждой игры
 const gamesData = [
     { name: 'Chess', image: 'https://images.pexels.com/photos/260024/pexels-photo-260024.jpeg?auto=compress&cs=tinysrgb&w=800', gameType: 'chess', status: 'Available', category: 'Strategy', tag: 'Advanced', avatar: 'C', rating: 4.9, difficulty: 'Difficult', players: '2 players', time: '30-60 min' },
     { name: 'Checkers', image: 'https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_67a99e7d6bcf180eb89c36da_67a99e866bcf180eb89c3b0d/scale_1200', gameType: 'checkers', status: 'Available', category: 'Strategy', tag: 'Average', avatar: 'C', rating: 4.7, difficulty: 'Average', players: '2 players', time: '15-30 min' },
     { name: 'Backgammon', image: 'https://www.superbetinyeniadresi.net/wp-content/uploads/2020/10/Tavla-Oynanan-Bahis-Siteleri.jpg', gameType: 'backgammon', status: 'Available', category: 'Strategy', tag: 'Average', avatar: 'B', rating: 4.8, difficulty: 'Average', players: '2 players', time: '20-45 min' },
+    { name: 'Bingo', image: 'https://avatars.mds.yandex.net/i?id=abe8723d93205892f919d0635deafded_l-5341604-images-thumbs&n=13', gameType: 'bingo', status: 'Available', category: 'Casual', tag: 'Easy', avatar: '🎱', rating: 4.8, difficulty: 'Easy', players: '2 players', time: '10-20 min' },
+    { name: 'Domino', image: 'https://wallpapers.com/images/hd/domino-2858-x-2037-background-51j0j2sp58c1n3b1.jpg', gameType: 'domino', status: 'Available', category: 'Strategy', tag: 'Average', avatar: 'D', rating: 4.7, difficulty: 'Average', players: '2 players', time: '15-30 min' },
+    { name: 'Durak', image: 'https://play-lh.googleusercontent.com/iExl3GyKHtppXeORDO5YshBcrFD7xc6BSvj4NTl5wT-Zq53LBM93Nyx6AfrRUQTP77A=w1024-h500', gameType: 'durak', status: 'Available', category: 'Strategy', tag: 'Average', avatar: 'D', rating: 4.6, difficulty: 'Average', players: '2 players', time: '10-25 min' },
+    { name: 'Dice', image: 'https://i.pinimg.com/originals/18/fd/e1/18fde15323d44e0c2d6bcd23e6f2c93f.jpg', gameType: 'dice', status: 'Available', category: 'Casual', tag: 'Average', avatar: '🎲', rating: 4.6, difficulty: 'Average', players: '2 players', time: '10-20 min' },
     { name: 'Tic Tac Toe', image: 'https://media.printables.com/media/prints/996434/images/7583870_392cdefa-1c3e-4318-9225-1bc12ed72a34_47a94660-c70d-4554-8a25-288442c379ea/tictac-2_configuration_no-configuration.png', gameType: 'tic-tac-toe', status: 'Available', category: 'Casual', tag: 'Easy', avatar: 'T', rating: 4.5, difficulty: 'Easily', players: '2 players', time: '1-5 min' },
 ];
 
 const GameCard: React.FC<{ game: typeof gamesData[0] }> = ({ game }) => (
     <div className={styles.gameCard}>
-        {/* <div className={styles.cardImage}> */}
             <img 
                   src={game.image} 
                   alt={game.avatar}
                   className={styles.cardImage}
-                //   className="w-full h-10 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-            {/* </div> */}
         <div className={styles.cardAvatar}>{game.avatar}</div>
         <div className={styles.cardContent}>
             <div className={styles.cardHeader}>
@@ -61,7 +61,6 @@ const HomePage: React.FC = () => {
                 <p>Select a game and start playing!</p>
             </div>
             
-            {/* Панель с фильтрами */}
             <div className={styles.filtersContainer}>
                 <div className={styles.filterGroup}>
                     <span>Categories:</span>

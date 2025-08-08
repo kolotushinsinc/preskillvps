@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// Импортируем новые функции
 import { 
   registerUser, 
   loginUser, 
@@ -11,7 +10,7 @@ const router = Router();
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.post('/forgot-password', forgotPassword); // Новый роут
-router.post('/reset-password', resetPassword);   // Новый роут
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 export default router;

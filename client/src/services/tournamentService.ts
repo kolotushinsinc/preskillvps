@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://sklgmsapi.koltech.dev';
 
-// Интерфейсы для новой архитектуры турниров
 export interface TournamentPlayer {
     _id: string;
     username: string;
@@ -96,9 +95,6 @@ class TournamentService {
         this.token = localStorage.getItem('token');
     }
 
-    /**
-     * Получить список активных турниров
-     */
     async getActiveTournaments(): Promise<Tournament[]> {
         try {
             this.updateToken();
@@ -106,13 +102,10 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching tournaments:', error);
-            throw new Error('Ошибка при получении списка турниров');
+            throw new Error('Error fetching tournaments list');
         }
     }
 
-    /**
-     * Получить все турниры (включая завершенные)
-     */
     async getAllTournaments(): Promise<Tournament[]> {
         try {
             this.updateToken();
@@ -120,13 +113,10 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching all tournaments:', error);
-            throw new Error('Ошибка при получении списка всех турниров');
+            throw new Error('Error fetching all tournaments list');
         }
     }
 
-    /**
-     * Получить турнир по ID
-     */
     async getTournamentById(tournamentId: string): Promise<Tournament> {
         try {
             this.updateToken();
@@ -134,13 +124,10 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching tournament:', error);
-            throw new Error('Ошибка при получении турнира');
+            throw new Error('Error fetching tournament');
         }
     }
 
-    /**
-     * Создать новый турнир
-     */
     async createTournament(tournamentData: CreateTournamentRequest): Promise<Tournament> {
         try {
             this.updateToken();
@@ -152,14 +139,11 @@ class TournamentService {
             return response.data.tournament;
         } catch (error: any) {
             console.error('Error creating tournament:', error);
-            const message = error.response?.data?.message || 'Ошибка при создании турнира';
+            const message = error.response?.data?.message || 'Error creating tournament';
             throw new Error(message);
         }
     }
 
-    /**
-     * Зарегистрироваться в турнире
-     */
     async registerInTournament(tournamentId: string, socketId?: string): Promise<{ message: string }> {
         try {
             this.updateToken();
@@ -176,14 +160,11 @@ class TournamentService {
             return response.data;
         } catch (error: any) {
             console.error('Error registering in tournament:', error);
-            const message = error.response?.data?.message || 'Ошибка при регистрации в турнире';
+            const message = error.response?.data?.message || 'Error registering in tournament';
             throw new Error(message);
         }
     }
 
-    /**
-     * Отменить регистрацию в турнире
-     */
     async unregisterFromTournament(tournamentId: string): Promise<{ message: string }> {
         try {
             this.updateToken();
@@ -194,14 +175,11 @@ class TournamentService {
             return response.data;
         } catch (error: any) {
             console.error('Error unregistering from tournament:', error);
-            const message = error.response?.data?.message || 'Ошибка при отмене регистрации';
+            const message = error.response?.data?.message || 'Error cancelling registration';
             throw new Error(message);
         }
     }
 
-    /**
-     * Получить турниры игрока
-     */
     async getPlayerTournaments(): Promise<Tournament[]> {
         try {
             this.updateToken();
@@ -209,13 +187,10 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching player tournaments:', error);
-            throw new Error('Ошибка при получении турниров игрока');
+            throw new Error('Error fetching player tournaments');
         }
     }
 
-    /**
-     * Получить историю турниров
-     */
     async getTournamentHistory(
         page: number = 1,
         limit: number = 10,
@@ -236,13 +211,10 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching tournament history:', error);
-            throw new Error('Ошибка при получении истории турниров');
+            throw new Error('Error fetching tournament history');
         }
     }
 
-    /**
-     * Получить статистику турниров
-     */
     async getTournamentStats(): Promise<TournamentStats> {
         try {
             this.updateToken();
@@ -250,27 +222,18 @@ class TournamentService {
             return response.data;
         } catch (error) {
             console.error('Error fetching tournament stats:', error);
-            throw new Error('Ошибка при получении статистики турниров');
+            throw new Error('Error fetching tournament statistics');
         }
     }
 
-    /**
-     * Проверить, зарегистрирован ли игрок в турнире
-     */
     isPlayerRegistered(tournament: Tournament, playerId: string): boolean {
         return tournament.players.some(player => player._id === playerId);
     }
 
-    /**
-     * Получить количество свободных мест в турнире
-     */
     getAvailableSpots(tournament: Tournament): number {
         return tournament.maxPlayers - tournament.players.length;
     }
 
-    /**
-     * Проверить, может ли игрок зарегистрироваться в турнире
-     */
     canPlayerRegister(tournament: Tournament, playerId: string): boolean {
         return (
             tournament.status === 'WAITING' &&
@@ -279,15 +242,11 @@ class TournamentService {
         );
     }
 
-    /**
-     * Получить текущий раунд турнира
-     */
     getCurrentRound(tournament: Tournament): TournamentRound | null {
         if (tournament.status !== 'ACTIVE' || tournament.bracket.length === 0) {
             return null;
         }
 
-        // Находим первый раунд с незавершенными матчами
         for (const round of tournament.bracket) {
             const hasActiveMatches = round.matches.some(match => 
                 match.status === 'ACTIVE' || match.status === 'PENDING'
@@ -297,13 +256,9 @@ class TournamentService {
             }
         }
 
-        // Если все раунды завершены, возвращаем последний
         return tournament.bracket[tournament.bracket.length - 1];
     }
 
-    /**
-     * Получить матч игрока в текущем раунде
-     */
     getPlayerCurrentMatch(tournament: Tournament, playerId: string): TournamentMatch | null {
         const currentRound = this.getCurrentRound(tournament);
         if (!currentRound) return null;
@@ -313,57 +268,40 @@ class TournamentService {
         ) || null;
     }
 
-    /**
-     * Форматировать название раунда
-     */
     formatRoundName(roundNumber: number, totalRounds: number): string {
-        if (roundNumber === totalRounds) return 'Финал';
-        if (roundNumber === totalRounds - 1) return 'Полуфинал';
-        if (roundNumber === totalRounds - 2) return 'Четвертьфинал';
-        return `Раунд ${roundNumber}`;
+        if (roundNumber === totalRounds) return 'Final';
+        if (roundNumber === totalRounds - 1) return 'Semifinal';
+        if (roundNumber === totalRounds - 2) return 'Quarterfinal';
+        return `Round ${roundNumber}`;
     }
 
-    /**
-     * Получить время до начала турнира (для 15-секундного таймера)
-     */
     getTimeUntilStart(tournament: Tournament): number {
         if (!tournament.firstRegistrationTime || tournament.status !== 'WAITING') {
             return 0;
         }
 
-        const startTime = new Date(tournament.firstRegistrationTime).getTime() + 15000; // +15 секунд
+        const startTime = new Date(tournament.firstRegistrationTime).getTime() + 15000; // +15 seconds
         const now = Date.now();
         return Math.max(0, startTime - now);
     }
 
-    /**
-     * Проверить, скоро ли начнется турнир
-     */
     isStartingSoon(tournament: Tournament): boolean {
         return this.getTimeUntilStart(tournament) > 0;
     }
 
-    /**
-     * Получить процент заполненности турнира
-     */
     getFilledPercentage(tournament: Tournament): number {
         return Math.round((tournament.players.length / tournament.maxPlayers) * 100);
     }
 
-    /**
-     * Получить призовое место игрока
-     */
     getPlayerPrizePlace(tournament: Tournament, playerId: string): number | null {
         if (tournament.status !== 'FINISHED' || !tournament.winner) {
             return null;
         }
 
-        // 1 место - победитель
         if (tournament.winner._id === playerId) {
             return 1;
         }
 
-        // 2 место - финалист
         const finalRound = tournament.bracket[tournament.bracket.length - 1];
         if (finalRound && finalRound.matches.length > 0) {
             const finalMatch = finalRound.matches[0];
@@ -376,7 +314,6 @@ class TournamentService {
             }
         }
 
-        // 3-4 места - полуфиналисты
         const semiFinalRound = tournament.bracket[tournament.bracket.length - 2];
         if (semiFinalRound) {
             for (const match of semiFinalRound.matches) {
@@ -386,13 +323,13 @@ class TournamentService {
                         : match.player1;
                     
                     if (loser._id === playerId) {
-                        return 3; // 3-4 место
+                        return 3;
                     }
                 }
             }
         }
 
-        return null; // Не попал в призы
+        return null;
     }
 }
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styles from './ChessBoard.module.css';
 
-// Типы для шахмат
+// Types for chess
 type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 type PieceColor = 'white' | 'black';
 
@@ -18,22 +18,19 @@ interface Position {
 
 type ChessBoard = (ChessPiece | null)[][];
 
-// Тип для хода
+// Type for move
 type ChessMove = {
     from: Position;
     to: Position;
     promotion?: string;
 };
 
-// Простая логика получения возможных ходов (базовая версия)
 function getBasicPossibleMoves(board: ChessBoard, from: Position, piece: ChessPiece): Position[] {
     const moves: Position[] = [];
     const { row, col } = from;
 
-    // Проверка границ доски
     const isValidPos = (r: number, c: number) => r >= 0 && r < 8 && c >= 0 && c < 8;
     
-    // Проверка, можно ли ходить на клетку
     const canMoveTo = (r: number, c: number) => {
         if (!isValidPos(r, c)) return false;
         const targetPiece = board[r][c];
@@ -45,17 +42,14 @@ function getBasicPossibleMoves(board: ChessBoard, from: Position, piece: ChessPi
             const direction = piece.color === 'white' ? -1 : 1;
             const startRow = piece.color === 'white' ? 6 : 1;
 
-            // Ход вперед
             if (isValidPos(row + direction, col) && !board[row + direction][col]) {
                 moves.push({ row: row + direction, col });
                 
-                // Двойной ход с начальной позиции
                 if (row === startRow && !board[row + 2 * direction][col]) {
                     moves.push({ row: row + 2 * direction, col });
                 }
             }
 
-            // Взятие по диагонали
             if (canMoveTo(row + direction, col - 1) && board[row + direction][col - 1]) {
                 moves.push({ row: row + direction, col: col - 1 });
             }
@@ -169,7 +163,6 @@ function getBasicPossibleMoves(board: ChessBoard, from: Position, piece: ChessPi
     return moves;
 }
 
-// Пропсы компонента
 interface ChessBoardProps {
     gameState: {
         board: ChessBoard;
@@ -187,9 +180,7 @@ interface ChessBoardProps {
     myPlayerIndex: 0 | 1;
 }
 
-// Проверка шаха
 function isKingInCheck(board: ChessBoard, color: PieceColor): boolean {
-    // Находим короля
     let kingPos: Position | null = null;
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -204,7 +195,6 @@ function isKingInCheck(board: ChessBoard, color: PieceColor): boolean {
     
     if (!kingPos) return false;
     
-    // Проверяем, может ли любая фигура противника атаковать короля
     const opponentColor = color === 'white' ? 'black' : 'white';
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -221,7 +211,6 @@ function isKingInCheck(board: ChessBoard, color: PieceColor): boolean {
     return false;
 }
 
-// Символы шахматных фигур
 const PIECE_SYMBOLS: Record<PieceColor, Record<PieceType, string>> = {
     white: {
         king: '♔',
@@ -257,7 +246,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         mousePos: { x: number; y: number };
     } | null>(null);
 
-    // Проверяем шах
     const myColor: PieceColor = myPlayerIndex === 0 ? 'white' : 'black';
     const isInCheck = isKingInCheck(gameState.board, myColor);
     const opponentColor: PieceColor = myColor === 'white' ? 'black' : 'white';
@@ -271,10 +259,8 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         boardSize: gameState.board?.length
     });
 
-    // Определяем ориентацию доски
     const isFlipped = myPlayerIndex === 1;
 
-    // Получаем возможные ходы для выбранной фигуры
     const getPossibleMovesForPiece = useCallback((from: Position): Position[] => {
         const piece = gameState.board[from.row][from.col];
         if (!piece) return [];
@@ -291,11 +277,9 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
             return;
         }
 
-        // Если уже выбрана фигура, пытаемся сделать ход
         if (selectedSquare) {
             console.log('[ChessBoard] Attempting move from', selectedSquare, 'to', position);
             
-            // Если кликнули на ту же клетку, снимаем выделение
             if (selectedSquare.row === row && selectedSquare.col === col) {
                 console.log('[ChessBoard] Deselecting piece');
                 setSelectedSquare(null);
@@ -303,7 +287,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
                 return;
             }
 
-            // Проверяем, является ли ход возможным
             const isValidMove = possibleMoves.some(move => 
                 move.row === row && move.col === col
             );
@@ -314,7 +297,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
                     to: position,
                 };
 
-                // Проверяем превращение пешки
                 const piece = gameState.board[selectedSquare.row][selectedSquare.col];
                 if (piece && piece.type === 'pawn' && 
                     ((piece.color === 'white' && row === 0) || 
@@ -328,13 +310,11 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
                 setSelectedSquare(null);
                 setPossibleMoves([]);
             } else {
-                // Пытаемся выбрать новую фигуру
                 selectPiece(row, col);
             }
             return;
         }
 
-        // Выбираем фигуру для хода
         selectPiece(row, col);
     }, [isMyTurn, isGameFinished, selectedSquare, possibleMoves, gameState.board, onMove]);
 
@@ -342,19 +322,16 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         const piece = gameState.board[row][col];
         if (!piece) return;
 
-        // Проверяем, что это наша фигура
         const myColor: PieceColor = myPlayerIndex === 0 ? 'white' : 'black';
         if (piece.color !== myColor) return;
 
         console.log('[ChessBoard] Selecting piece at', { row, col });
         setSelectedSquare({ row, col });
         
-        // Получаем возможные ходы
         const moves = getPossibleMovesForPiece({ row, col });
         setPossibleMoves(moves);
     }, [gameState.board, myPlayerIndex, getPossibleMovesForPiece]);
 
-    // Обработка drag and drop
     const onMouseDown = useCallback((e: React.MouseEvent, row: number, col: number) => {
         if (!isMyTurn || isGameFinished) return;
 
@@ -387,16 +364,13 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
     const onMouseUp = useCallback((e: MouseEvent) => {
         if (!draggedPiece) return;
 
-        // Находим клетку под курсором
         const boardElement = document.querySelector(`.${styles.boardGrid}`);
         if (boardElement) {
             const rect = boardElement.getBoundingClientRect();
             
-            // Учитываем возможные трансформации и скроллинг
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            // Проверяем, что координаты находятся в пределах доски
             if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
                 setDraggedPiece(null);
                 setPossibleMoves([]);
@@ -407,7 +381,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
             let col = Math.floor(x / squareSize);
             let row = Math.floor(y / squareSize);
 
-            // Учитываем ориентацию доски
             if (isFlipped) {
                 row = 7 - row;
                 col = 7 - col;
@@ -424,7 +397,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
                         to: { row, col },
                     };
 
-                    // Проверяем превращение пешки
                     if (draggedPiece.piece.type === 'pawn' &&
                         ((draggedPiece.piece.color === 'white' && row === 0) ||
                          (draggedPiece.piece.color === 'black' && row === 7))) {
@@ -440,7 +412,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         setPossibleMoves([]);
     }, [draggedPiece, possibleMoves, isFlipped, onMove]);
 
-    // Подписываемся на события мыши
     useEffect(() => {
         if (draggedPiece) {
             document.addEventListener('mousemove', onMouseMove);
@@ -452,7 +423,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         }
     }, [draggedPiece, onMouseMove, onMouseUp]);
 
-    // Обработка превращения пешки
     const handlePromotion = useCallback((pieceType: PieceType) => {
         if (promotionMove) {
             onMove({
@@ -463,24 +433,20 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         }
     }, [promotionMove, onMove]);
 
-    // Проверяем, является ли клетка выделенной
     const isSquareSelected = useCallback((row: number, col: number) => {
         return selectedSquare?.row === row && selectedSquare?.col === col;
     }, [selectedSquare]);
 
-    // Проверяем, является ли клетка возможным ходом
     const isSquarePossibleMove = useCallback((row: number, col: number) => {
         return possibleMoves.some(move => move.row === row && move.col === col);
     }, [possibleMoves]);
 
-    // Проверяем, является ли клетка последним ходом
     const isSquareLastMove = useCallback((row: number, col: number) => {
         if (!gameState.lastMove) return false;
         return (gameState.lastMove.from.row === row && gameState.lastMove.from.col === col) ||
                (gameState.lastMove.to.row === row && gameState.lastMove.to.col === col);
     }, [gameState.lastMove]);
 
-    // Получаем CSS класс для клетки
     const getSquareClass = useCallback((row: number, col: number) => {
         const isLight = (row + col) % 2 === 0;
         let className = isLight ? styles.lightSquare : styles.darkSquare;
@@ -496,11 +462,9 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         return className;
     }, [isSquareSelected, isSquarePossibleMove, isSquareLastMove]);
 
-    // Рендерим фигуру
     const renderPiece = useCallback((piece: ChessPiece | null, row: number, col: number) => {
         if (!piece) return null;
 
-        // Не рендерим перетаскиваемую фигуру
         if (draggedPiece && 
             draggedPiece.from.row === row && 
             draggedPiece.from.col === col) {
@@ -519,7 +483,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
         );
     }, [draggedPiece, onMouseDown]);
 
-    // Рендерим доску
     const renderBoard = () => {
         const squares = [];
         
@@ -537,7 +500,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
                     >
                         {renderPiece(piece, displayRow, displayCol)}
                         
-                        {/* Координаты */}
                         {col === 0 && (
                             <div className={`${styles.coordinates} ${styles.rankCoordinate}`}>
                                 {isFlipped ? row + 1 : 8 - row}
@@ -558,119 +520,112 @@ const ChessBoard: React.FC<ChessBoardProps> = ({
 
     return (
         <div className={styles.chessBoard}>
-            {/* Информация о игроках */}
             <div className={styles.playerInfo}>
                 <div className={styles.playerInfoItem}>
                     <span className={`${styles.colorIndicator} ${styles.whiteIndicator}`}></span>
-                    Белые (ходят первыми) - {myPlayerIndex === 0 ? 'Вы' : 'Противник'}
+                    White (moves first) - {myPlayerIndex === 0 ? 'You' : 'Opponent'}
                 </div>
                 <div className={styles.playerInfoItem}>
                     <span className={`${styles.colorIndicator} ${styles.blackIndicator}`}></span>
-                    Черные - {myPlayerIndex === 1 ? 'Вы' : 'Противник'}
+                    Black - {myPlayerIndex === 1 ? 'You' : 'Opponent'}
                 </div>
                 {gameState.moveCount !== undefined && (
                     <div className={styles.moveCounter}>
-                        Ход: {Math.floor(gameState.moveCount / 2) + 1}
+                        Move: {Math.floor(gameState.moveCount / 2) + 1}
                     </div>
                 )}
             </div>
 
-            {/* Шахматная доска */}
             <div className={styles.boardContainer}>
                 <div className={styles.boardGrid}>
                     {renderBoard()}
                 </div>
             </div>
             
-            {/* Показываем историю ходов */}
             {gameState.moveHistory && gameState.moveHistory.length > 0 && (
                 <div className={styles.gameHistory}>
-                    <strong>История ходов:</strong> {gameState.moveHistory.map((move, index) => {
+                    <strong>Move History:</strong> {gameState.moveHistory.map((move, index) => {
                         if (typeof move === 'string') {
                             return move;
                         } else if (move && typeof move === 'object' && move.from && move.to) {
-                            // Конвертируем объект хода в читаемую нотацию
                             const fromSquare = String.fromCharCode(97 + move.from.col) + (8 - move.from.row);
                             const toSquare = String.fromCharCode(97 + move.to.col) + (8 - move.to.row);
                             return `${fromSquare}-${toSquare}`;
                         }
-                        return `Ход ${index + 1}`;
+                        return `Move ${index + 1}`;
                     }).join(', ')}
                 </div>
             )}
 
-            {/* Статус игры */}
             <div className={`${styles.gameStatus} ${
                 isGameFinished ? styles.gameFinished : 
                 isMyTurn ? styles.myTurn : styles.opponentTurn
             }`}>
                 {isGameFinished ? (
-                    <span>Игра завершена</span>
+                    <span>Game Finished</span>
                 ) : isInCheck && isMyTurn ? (
-                    <span style={{ color: '#ef4444' }}>⚠️ ШАХ! Ваш ход</span>
+                    <span style={{ color: '#ef4444' }}>⚠️ CHECK! Your Turn</span>
                 ) : isOpponentInCheck && !isMyTurn ? (
-                    <span style={{ color: '#ef4444' }}>⚠️ ШАХ противнику! Ход противника</span>
+                    <span style={{ color: '#ef4444' }}>⚠️ CHECK to Opponent! Opponent's Turn</span>
                 ) : isMyTurn ? (
-                    <span>🟢 Ваш ход</span>
+                    <span>🟢 Your Turn</span>
                 ) : (
-                    <span>🟡 Ход противника</span>
+                    <span>🟡 Opponent's Turn</span>
                 )}
             </div>
 
-            {/* Модальное окно превращения пешки */}
             {promotionMove && (
                 <div className={styles.promotionModal}>
                     <div className={styles.promotionContent}>
                         <div className={styles.promotionTitle}>
-                            Выберите фигуру для превращения:
+                            Choose piece for promotion:
                         </div>
                         <div className={styles.promotionOptions}>
                             <div
                                 className={styles.promotionOption}
                                 onClick={() => handlePromotion('queen')}
-                                title="Ферзь"
+                                title="Queen"
                             >
                                 <div className={styles.promotionPiece}>
                                     {myColor === 'white' ? '♕' : '♛'}
                                 </div>
-                                <div className={styles.promotionLabel}>Ферзь</div>
+                                <div className={styles.promotionLabel}>Queen</div>
                             </div>
                             <div
                                 className={styles.promotionOption}
                                 onClick={() => handlePromotion('rook')}
-                                title="Ладья"
+                                title="Rook"
                             >
                                 <div className={styles.promotionPiece}>
                                     {myColor === 'white' ? '♖' : '♜'}
                                 </div>
-                                <div className={styles.promotionLabel}>Ладья</div>
+                                <div className={styles.promotionLabel}>Rook</div>
                             </div>
                             <div
                                 className={styles.promotionOption}
                                 onClick={() => handlePromotion('bishop')}
-                                title="Слон"
+                                title="Bishop"
                             >
                                 <div className={styles.promotionPiece}>
                                     {myColor === 'white' ? '♗' : '♝'}
                                 </div>
-                                <div className={styles.promotionLabel}>Слон</div>
+                                <div className={styles.promotionLabel}>Bishop</div>
                             </div>
                             <div
                                 className={styles.promotionOption}
                                 onClick={() => handlePromotion('knight')}
-                                title="Конь"
+                                title="Knight"
                             >
                                 <div className={styles.promotionPiece}>
                                     {myColor === 'white' ? '♘' : '♞'}
                                 </div>
-                                <div className={styles.promotionLabel}>Конь</div>
+                                <div className={styles.promotionLabel}>Knight</div>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Перетаскиваемая фигура */}
             {draggedPiece && (
                 <div
                     className={`${styles.dragPreview} ${draggedPiece.piece.color === 'black' ? styles.blackPiece : styles.whitePiece}`}

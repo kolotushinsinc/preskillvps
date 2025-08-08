@@ -5,10 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import { NotificationHandler } from './components/NotificationHandler/NotificationHandler';
 import TournamentExitManager from './components/tournament/TournamentExitManager';
 
-// Шаблоны
 import MainLayout from './components/layout/MainLayout';
 
-// Публичные страницы
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';

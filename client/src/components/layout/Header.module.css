@@ -1,7 +1,7 @@
 .header {
-    background-color: #1e293b; /* slate-800 */
-    border-bottom: 1px solid #334155; /* slate-700 */
-    height: 4rem; /* 16 in tailwind units */
+    background-color: #1e293b; 
+    border-bottom: 1px solid #334155; 
+    height: 4rem; 
     padding: 0 2rem;
     display: flex;
     align-items: center;
@@ -9,18 +9,16 @@
 }
 
 .menuButton {
-    /* --- ИСПРАВЛЕНИЕ ЗДЕСЬ --- */
     background: none;
     border: none;
     cursor: pointer;
-    /* ------------------------ */
     padding: 0.5rem;
     border-radius: 6px;
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
 }
 .menuButton:hover {
-    background-color: #334155; /* slate-700 */
-    color: #f1f5f9; /* slate-100 */
+    background-color: #334155;
+    color: #f1f5f9;
 }
 
 .rightSection {
@@ -38,7 +36,7 @@
 .onlineDot {
     width: 0.75rem;
     height: 0.75rem;
-    background-color: #22c55e; /* green-500 */
+    background-color: #22c55e;
     border-radius: 50%;
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -50,8 +48,8 @@
 }
 
 .balance {
-    background-color: rgba(22, 163, 74, 0.2); /* green-500 with opacity */
-    color: #4ade80; /* green-400 */
+    background-color: rgba(22, 163, 74, 0.2);
+    color: #4ade80;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.875rem;
@@ -60,7 +58,7 @@
 
 .notificationBell {
     position: relative;
-    color: #94a3b8; /* slate-400 */
+    color: #94a3b8;
     font-size: 1.5rem;
     text-decoration: none;
 }

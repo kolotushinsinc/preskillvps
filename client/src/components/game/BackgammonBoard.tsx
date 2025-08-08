@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import styles from './BackgammonBoard.module.css';
 
-// Типы для нард
+// Types for backgammon
 type PlayerColor = 'white' | 'black';
 
 interface BackgammonPiece {
@@ -64,10 +64,8 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         diceRoll: gameState.diceRoll
     });
 
-    // Определяем цвет игрока
     const myColor: PlayerColor = myPlayerIndex === 0 ? 'white' : 'black';
 
-    // Получаем возможные ходы для выбранной точки
     const getPossibleMovesForPoint = useCallback((from: number): number[] => {
         if (!gameState.diceRoll || !isMyTurn || gameState.turnPhase !== 'MOVING') {
             return [];
@@ -76,7 +74,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         const moves: number[] = [];
         const direction = myColor === 'white' ? 1 : -1;
 
-        // Ходы с бара
         if (from === -1) {
             if (gameState.bar[myColor].length === 0) return [];
             
@@ -89,52 +86,44 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
             return moves;
         }
 
-        // Обычные ходы
         if (from < 0 || from >= 24) return [];
         if (gameState.board[from].pieces.length === 0) return [];
         if (gameState.board[from].pieces[gameState.board[from].pieces.length - 1].color !== myColor) return [];
 
-        // Если есть фигуры на баре, можно ходить только с бара
         if (gameState.bar[myColor].length > 0) return [];
 
         for (const dieValue of gameState.diceRoll.availableMoves) {
             const to = from + (dieValue * direction);
 
-            // Обычный ход
             if (to >= 0 && to < 24 && canPlacePieceOnPoint(to)) {
                 moves.push(to);
             }
 
-            // Вывод из дома
             if (areAllPiecesInHome() && 
                 ((myColor === 'white' && to >= 24) || (myColor === 'black' && to < 0))) {
-                moves.push(-2); // -2 означает вывод в дом
+                moves.push(-2);
             }
         }
 
         return moves;
     }, [gameState, isMyTurn, myColor]);
 
-    // Проверка, можно ли поставить фигуру на точку
     const canPlacePieceOnPoint = useCallback((pointIndex: number): boolean => {
         if (pointIndex < 0 || pointIndex >= 24) return false;
         
         const point = gameState.board[pointIndex];
         if (point.pieces.length === 0) return true;
         if (point.pieces[0].color === myColor) return true;
-        if (point.pieces.length === 1) return true; // можно бить одиночную фигуру
+        if (point.pieces.length === 1) return true; 
         
-        return false; // нельзя ходить на точку с 2+ фигурами противника
+        return false;
     }, [gameState.board, myColor]);
 
-    // Проверка, все ли фигуры в доме
     const areAllPiecesInHome = useCallback((): boolean => {
         const homeRange = myColor === 'white' ? [18, 19, 20, 21, 22, 23] : [0, 1, 2, 3, 4, 5];
         
-        // Проверяем, что на баре нет фигур
         if (gameState.bar[myColor].length > 0) return false;
 
-        // Проверяем, что все фигуры в доме или уже выведены
         let piecesOnBoard = 0;
         for (let i = 0; i < 24; i++) {
             const piecesOfColor = gameState.board[i].pieces.filter(p => p.color === myColor).length;
@@ -147,7 +136,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         return piecesOnBoard + gameState.home[myColor].length === 15;
     }, [gameState, myColor]);
 
-    // Обработка клика по точке
     const handlePointClick = useCallback((pointIndex: number) => {
         console.log('[BackgammonBoard] Point clicked:', pointIndex);
         
@@ -156,11 +144,9 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
             return;
         }
 
-        // Если уже выбрана точка, пытаемся сделать ход
         if (selectedPoint !== null) {
             console.log('[BackgammonBoard] Attempting move from', selectedPoint, 'to', pointIndex);
             
-            // Если кликнули на ту же точку, снимаем выделение
             if (selectedPoint === pointIndex) {
                 console.log('[BackgammonBoard] Deselecting point');
                 setSelectedPoint(null);
@@ -168,23 +154,18 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                 return;
             }
 
-            // Проверяем, является ли ход возможным
             const isValidMove = possibleMoves.includes(pointIndex);
 
             if (isValidMove && gameState.diceRoll) {
-                // Находим подходящую кость
                 const direction = myColor === 'white' ? 1 : -1;
                 let dieValue = 0;
 
                 if (selectedPoint === -1) {
-                    // Ход с бара
                     dieValue = myColor === 'white' ? pointIndex + 1 : 24 - pointIndex;
                 } else if (pointIndex === -2) {
-                    // Вывод из дома
                     const distance = myColor === 'white' ? 24 - selectedPoint : selectedPoint + 1;
                     dieValue = gameState.diceRoll.availableMoves.find(die => die >= distance) || 0;
                 } else {
-                    // Обычный ход
                     dieValue = (pointIndex - selectedPoint) * direction;
                 }
 
@@ -201,18 +182,15 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                     console.log('[BackgammonBoard] Invalid die value:', dieValue);
                 }
             } else {
-                // Пытаемся выбрать новую точку
                 selectPoint(pointIndex);
             }
             return;
         }
 
-        // Выбираем точку для хода
         selectPoint(pointIndex);
     }, [isMyTurn, isGameFinished, selectedPoint, possibleMoves, gameState, myColor, onMove]);
 
     const selectPoint = useCallback((pointIndex: number) => {
-        // Ход с бара
         if (pointIndex === -1) {
             if (gameState.bar[myColor].length === 0) return;
             console.log('[BackgammonBoard] Selecting bar');
@@ -222,7 +200,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
             return;
         }
 
-        // Обычная точка
         if (pointIndex < 0 || pointIndex >= 24) return;
         const point = gameState.board[pointIndex];
         if (point.pieces.length === 0) return;
@@ -234,25 +211,21 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         setPossibleMoves(moves);
     }, [gameState, myColor, getPossibleMovesForPoint]);
 
-    // Обработка клика по зоне вывода
     const handleBearOffClick = useCallback(() => {
         if (selectedPoint !== null && possibleMoves.includes(-2)) {
             handlePointClick(-2);
         }
     }, [selectedPoint, possibleMoves, handlePointClick]);
 
-    // Обработка броска костей с анимацией
     const handleRollDice = useCallback(() => {
         setIsRollingDice(true);
         onRollDice();
         
-        // Анимация длится 1.5 секунды
         setTimeout(() => {
             setIsRollingDice(false);
         }, 1500);
     }, [onRollDice]);
 
-    // Анимация движения фигуры
     const animateMove = useCallback((from: number, to: number) => {
         setMovingPiece({ from, to });
         setTimeout(() => {
@@ -260,7 +233,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         }, 500);
     }, []);
 
-    // Обработка хода с анимацией
     const handleMoveWithAnimation = useCallback((move: BackgammonMove) => {
         animateMove(move.from, move.to);
         setTimeout(() => {
@@ -270,7 +242,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         }, 250);
     }, [onMove, animateMove]);
 
-    // Рендер фигуры с анимациями
     const renderPiece = useCallback((piece: BackgammonPiece, index: number, pointIndex?: number) => {
         const isMoving = movingPiece && pointIndex !== undefined &&
             (pointIndex === movingPiece.from || pointIndex === movingPiece.to);
@@ -284,7 +255,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         );
     }, [movingPiece]);
 
-    // Рендер точки
     const renderPoint = useCallback((pointIndex: number, isTop: boolean) => {
         const point = gameState.board[pointIndex];
         const isSelected = selectedPoint === pointIndex;
@@ -319,14 +289,12 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         );
     }, [gameState.board, selectedPoint, possibleMoves, handlePointClick, renderPiece]);
 
-    // Рендер костей с анимацией
     const renderDice = useCallback(() => {
         if (!gameState.diceRoll && !isRollingDice) return null;
 
         return (
             <div className={styles.diceContainer}>
                 {isRollingDice ? (
-                    // Показываем анимацию броска
                     <>
                         <div className={`${styles.die} ${styles.diceRolling}`}>
                             ?
@@ -336,7 +304,6 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                         </div>
                     </>
                 ) : gameState.diceRoll ? (
-                    // Показываем результат броска
                     <>
                         {gameState.diceRoll.dice.map((die, index) => (
                             <div key={index} className={styles.die}>
@@ -356,14 +323,13 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
 
     return (
         <div className={styles.backgammonBoard}>
-            {/* Информация об игре */}
             <div className={styles.gameInfo}>
                 <div className={styles.playerInfo}>
                     <div className={styles.playerName}>
-                        {myPlayerIndex === 0 ? 'Вы' : 'Противник'}
+                        {myPlayerIndex === 0 ? 'You' : 'Opponent'}
                     </div>
                     <div className={styles.playerColor}>
-                        Белые (ходят первыми)
+                        White (moves first)
                     </div>
                 </div>
 
@@ -374,7 +340,7 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                             className={styles.rollButton}
                             disabled={isRollingDice}
                         >
-                            {isRollingDice ? 'Бросаем...' : 'Бросить кости'}
+                            {isRollingDice ? 'Rolling...' : 'Roll Dice'}
                         </button>
                     )}
                     {renderDice()}
@@ -382,17 +348,15 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
 
                 <div className={styles.playerInfo}>
                     <div className={styles.playerName}>
-                        {myPlayerIndex === 1 ? 'Вы' : 'Противник'}
+                        {myPlayerIndex === 1 ? 'You' : 'Opponent'}
                     </div>
                     <div className={styles.playerColor}>
-                        Черные
+                        Black
                     </div>
                 </div>
             </div>
 
-            {/* Игровая доска */}
             <div className={styles.boardContainer}>
-                {/* Номера точек */}
                 <div className={styles.pointNumbers}>
                     {Array.from({ length: 24 }, (_, i) => {
                         const pointNum = i < 12 ? 12 - i : i + 1;
@@ -405,41 +369,33 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                 </div>
 
                 <div className={styles.boardGrid}>
-                    {/* Верхняя секция */}
                     <div className={styles.topSection}>
-                        {/* Левый квадрант (точки 12-7) */}
                         <div className={styles.leftQuadrant}>
                             {Array.from({ length: 6 }, (_, i) => renderPoint(12 - i - 1, true))}
                         </div>
                         
-                        {/* Правый квадрант (точки 6-1) */}
                         <div className={styles.rightQuadrant}>
                             {Array.from({ length: 6 }, (_, i) => renderPoint(6 - i - 1, true))}
                         </div>
                     </div>
 
-                    {/* Средняя полоса с баром */}
                     <div className={styles.middleBar}>
                         <span style={{ color: '#e2e8f0', fontWeight: 'bold', fontSize: 'clamp(10px, 2vw, 14px)' }}>
-                            БАР
+                            BAR
                         </span>
                     </div>
 
-                    {/* Нижняя секция */}
                     <div className={styles.bottomSection}>
-                        {/* Левый квадрант (точки 13-18) */}
                         <div className={styles.leftQuadrant}>
                             {Array.from({ length: 6 }, (_, i) => renderPoint(12 + i, false))}
                         </div>
                         
-                        {/* Правый квадрант (точки 19-24) */}
                         <div className={styles.rightQuadrant}>
                             {Array.from({ length: 6 }, (_, i) => renderPoint(18 + i, false))}
                         </div>
                     </div>
                 </div>
 
-                {/* Бар */}
                 <div
                     className={styles.bar}
                     onClick={() => handlePointClick(-1)}
@@ -452,12 +408,11 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                     </div>
                 </div>
 
-                {/* Зона вывода фигур */}
                 <div
                     className={styles.bearOffZone}
                     onClick={handleBearOffClick}
                 >
-                    <div className={styles.bearOffLabel}>ВЫВОД</div>
+                    <div className={styles.bearOffLabel}>BEAR OFF</div>
                     <div className={styles.bearOffPieces}>
                         {gameState.home.white.map((piece, index) => renderPiece(piece, index, -2))}
                     </div>
@@ -467,26 +422,24 @@ const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
                 </div>
             </div>
 
-            {/* Статус игры */}
             <div className={`${styles.gameStatus} ${
                 isGameFinished ? styles.gameFinished : 
                 isMyTurn ? styles.myTurn : styles.opponentTurn
             }`}>
                 {isGameFinished ? (
-                    <span>Игра завершена</span>
+                    <span>Game Finished</span>
                 ) : isMyTurn ? (
                     gameState.turnPhase === 'ROLLING' ? 
-                        <span>🎲 Ваш ход - бросьте кости</span> :
-                        <span>🟢 Ваш ход - делайте ходы</span>
+                        <span>🎲 Your Turn - Roll Dice</span> :
+                        <span>🟢 Your Turn - Make Moves</span>
                 ) : (
-                    <span>🟡 Ход противника</span>
+                    <span>🟡 Opponent's Turn</span>
                 )}
             </div>
 
-            {/* История ходов */}
             {gameState.moveHistory && gameState.moveHistory.length > 0 && (
                 <div className={styles.moveHistory}>
-                    <strong>История ходов:</strong> {gameState.moveHistory.length} ходов
+                    <strong>Move History:</strong> {gameState.moveHistory.length} moves
                 </div>
             )}
         </div>

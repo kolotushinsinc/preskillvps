@@ -6,10 +6,10 @@
 .sidebar {
     width: 240px;
     flex-shrink: 0;
-    background-color: #1e293b; /* slate-800 */
+    background-color: #1e293b;
     border-radius: 12px;
     padding: 1rem;
-    border: 1px solid #334155; /* slate-700 */
+    border: 1px solid #334155;
 }
 
 .navButton {
@@ -20,7 +20,7 @@
     border-radius: 8px;
     border: none;
     background-color: transparent;
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -31,11 +31,11 @@
     height: 20px;
 }
 .navButton:hover {
-    background-color: #334155; /* slate-700 */
+    background-color: #334155;
     color: white;
 }
 .navButton.active {
-    background-color: #2563eb; /* blue-600 */
+    background-color: #2563eb;
     color: white;
 }
 

@@ -7,6 +7,10 @@ import TicTacToeBoard from '../../components/game/TicTacToeBoard';
 import CheckersBoard from '../../components/game/CheckersBoard';
 import ChessBoard from '../../components/game/ChessBoard';
 import BackgammonBoard from '../../components/game/BackgammonBoard';
+import DurakBoard from '../../components/game/DurakBoard';
+import DominoBoard from '../../components/game/DominoBoard';
+import DiceBoard from '../../components/game/DiceBoard';
+import BingoBoard from '../../components/game/BingoBoard';
 import ErrorModal from '../../components/modals/ErrorModal';
 import GameResultModal from '../../components/modals/GameResultModal';
 import { Chess } from 'chess.js';
@@ -34,6 +38,10 @@ const getGameIcon = (gameType: string = ''): string => {
         case 'checkers': return '⚫';
         case 'chess': return '♛';
         case 'backgammon': return '🎲';
+        case 'durak': return '🃏';
+        case 'domino': return '🀫';
+        case 'dice': return '🎯';
+        case 'bingo': return '🎱';
         default: return '🎮';
     }
 }
@@ -84,7 +92,6 @@ const GamePage: React.FC = () => {
         const onGameEnd = async ({ winner, isDraw }: { winner: Player | null, isDraw: boolean }) => {
             console.log('Game ended:', { winner, isDraw });
             
-            // Определяем результат для модального окна
             let result: 'win' | 'lose' | 'draw';
             let opponentName = '';
             
@@ -101,7 +108,6 @@ const GamePage: React.FC = () => {
                 opponentName = winner?.user.username || 'Unknown';
             }
 
-            // Показываем модальное окно результата
             setGameResultModal({
                 isOpen: true,
                 result,
@@ -117,7 +123,6 @@ const GamePage: React.FC = () => {
 
         const onError = ({ message }: { message: string }) => {
             console.error('Game error:', message);
-            // Показываем модальное окно вместо завершения игры
             setErrorModal({ isOpen: true, message });
         };
 
@@ -138,7 +143,6 @@ const GamePage: React.FC = () => {
         socket.on('playerReconnected', onPlayerReconnected);
         socket.on('opponentDisconnected', onOpponentDisconnected);
 
-        // Запрашиваем текущее состояние игры
         socket.emit('getGameState', roomId);
 
         return () => {
@@ -165,7 +169,6 @@ const GamePage: React.FC = () => {
                     if (prev <= 1) {
                         if (redirectTimerRef.current) clearInterval(redirectTimerRef.current);
                         
-                        // Для турнирных игр возвращаемся к турниру, для обычных - в лобби
                         if (roomId?.startsWith('tourney-')) {
                             const tournamentId = roomId.split('-')[1];
                             navigate(`/tournaments/${tournamentId}`);
@@ -188,7 +191,6 @@ const GamePage: React.FC = () => {
             socket.emit('leaveGame', roomId);
         }
         
-        // Для турнирных игр возвращаемся к турниру, для обычных - в лобби
         if (roomId?.startsWith('tourney-')) {
             const tournamentId = roomId.split('-')[1];
             navigate(`/tournaments/${tournamentId}`);
@@ -277,6 +279,70 @@ const GamePage: React.FC = () => {
                         gameState={roomState.gameState}
                         onMove={(move) => handleMove(move)}
                         onRollDice={handleRollDice}
+                        isMyTurn={isMyTurn}
+                        isGameFinished={!!gameMessage}
+                        myPlayerIndex={myPlayerIndex as 0 | 1}
+                    />
+                );
+            case 'durak':
+                if (myPlayerIndex === -1) return (
+                    <div className="alert alert-error">
+                        <p>Error: You are not a player in this room.</p>
+                    </div>
+                );
+                return (
+                    <DurakBoard
+                        // @ts-ignore
+                        gameState={roomState.gameState}
+                        onMove={(move) => handleMove(move)}
+                        isMyTurn={isMyTurn}
+                        isGameFinished={!!gameMessage}
+                        myPlayerIndex={myPlayerIndex as 0 | 1}
+                    />
+                );
+            case 'domino':
+                if (myPlayerIndex === -1) return (
+                    <div className="alert alert-error">
+                        <p>Error: You are not a player in this room.</p>
+                    </div>
+                );
+                return (
+                    <DominoBoard
+                        // @ts-ignore
+                        gameState={roomState.gameState}
+                        onMove={(move) => handleMove(move)}
+                        isMyTurn={isMyTurn}
+                        isGameFinished={!!gameMessage}
+                        myPlayerIndex={myPlayerIndex as 0 | 1}
+                    />
+                );
+            case 'dice':
+                if (myPlayerIndex === -1) return (
+                    <div className="alert alert-error">
+                        <p>Error: You are not a player in this room.</p>
+                    </div>
+                );
+                return (
+                    <DiceBoard
+                        // @ts-ignore
+                        gameState={roomState.gameState}
+                        onMove={(move) => handleMove(move)}
+                        isMyTurn={isMyTurn}
+                        isGameFinished={!!gameMessage}
+                        myPlayerIndex={myPlayerIndex as 0 | 1}
+                    />
+                );
+            case 'bingo':
+                if (myPlayerIndex === -1) return (
+                    <div className="alert alert-error">
+                        <p>Error: You are not a player in this room.</p>
+                    </div>
+                );
+                return (
+                    <BingoBoard
+                        // @ts-ignore
+                        gameState={roomState.gameState}
+                        onMove={(move) => handleMove(move)}
                         isMyTurn={isMyTurn}
                         isGameFinished={!!gameMessage}
                         myPlayerIndex={myPlayerIndex as 0 | 1}

@@ -1,110 +1,6 @@
-// import React, { useState } from 'react';
-
-// // Типы, описывающие состояние игры в шашки, приходящее с сервера
-// type Piece = {
-//     playerIndex: 0 | 1;
-//     isKing: boolean;
-// };
-// type CheckersGameState = {
-//     board: (Piece | null)[];
-// };
-// type CheckersMove = {
-//     from: number;
-//     to: number;
-// };
-
-// // Пропсы компонента
-// interface CheckersBoardProps {
-//     gameState: CheckersGameState;
-//     onMove: (move: CheckersMove) => void;
-//     isMyTurn: boolean;
-//     isGameFinished: boolean;
-//     myPlayerIndex: 0 | 1; // Индекс текущего игрока (0 или 1)
-// }
-
-// const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTurn, isGameFinished, myPlayerIndex }) => {
-//     const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
-
-//     const handleSquareClick = (index: number) => {
-//         // Запрещаем любые действия, если не наш ход или игра окончена
-//         if (!isMyTurn || isGameFinished) return;
-
-//         const piece = gameState.board[index];
-
-//         if (selectedPiece !== null) {
-//             // Второй клик - попытка сделать ход
-//             // TODO: В будущем здесь можно добавить клиентскую валидацию хода для подсветки
-//             onMove({ from: selectedPiece, to: index });
-//             setSelectedPiece(null); // Сбрасываем выбор после любого хода
-//         } else if (piece && piece.playerIndex === myPlayerIndex) {
-//             // Первый клик - выбор своей шашки
-//             setSelectedPiece(index);
-//         }
-//     };
-
-//     // Стили для доски и фигур
-//     const boardStyle: React.CSSProperties = {
-//         display: 'grid',
-//         gridTemplateColumns: 'repeat(8, 60px)',
-//         gridTemplateRows: 'repeat(8, 60px)',
-//         width: '480px',
-//         height: '480px',
-//         border: '2px solid #5a3a22',
-//         margin: '20px auto',
-//     };
-
-//     const getSquareStyle = (index: number): React.CSSProperties => {
-//         const row = Math.floor(index / 8);
-//         const col = index % 8;
-//         const isDark = (row + col) % 2 !== 0;
-//         return {
-//             backgroundColor: isDark ? '#8B4513' : '#F0D9B5',
-//             display: 'flex',
-//             justifyContent: 'center',
-//             alignItems: 'center',
-//             cursor: 'pointer',
-//             border: index === selectedPiece ? '3px solid #64ffda' : 'none', // Подсветка выбранной шашки
-//         };
-//     };
-
-//     const pieceStyle: React.CSSProperties = {
-//         width: '80%',
-//         height: '80%',
-//         borderRadius: '50%',
-//         display: 'flex',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         color: 'white',
-//         fontSize: '1.5rem',
-//         fontWeight: 'bold',
-//     };
-
-//     return (
-//         <div style={boardStyle}>
-//             {gameState.board.map((piece, index) => (
-//                 <div key={index} style={getSquareStyle(index)} onClick={() => handleSquareClick(index)}>
-//                     {piece && (
-//                         <div style={{
-//                             ...pieceStyle,
-//                             backgroundColor: piece.playerIndex === 0 ? '#1e1e1e' : '#e0e0e0', // Черные и белые
-//                             color: piece.playerIndex === 0 ? 'white' : 'black',
-//                         }}>
-//                             {piece.isKing && '👑'}
-//                         </div>
-//                     )}
-//                 </div>
-//             ))}
-//         </div>
-//     );
-// };
-
-// export default CheckersBoard;
-
-
 import React, { useState, useMemo } from 'react';
-import styles from './CheckersBoard.module.css'; // Импортируем стили
+import styles from './CheckersBoard.module.css';
 
-// Типы, описывающие состояние игры в шашки, приходящее с сервера
 type Piece = {
     playerIndex: 0 | 1;
     isKing: boolean;
@@ -117,7 +13,6 @@ type CheckersMove = {
     to: number;
 };
 
-// Пропсы компонента
 interface CheckersBoardProps {
     gameState: CheckersGameState;
     onMove: (move: CheckersMove) => void;
@@ -131,7 +26,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
     const [draggedPiece, setDraggedPiece] = useState<number | null>(null);
     const [dragOverSquare, setDragOverSquare] = useState<number | null>(null);
 
-    // Функция для вычисления возможных ходов (полная клиентская версия)
     const getPossibleMoves = (fromIndex: number): number[] => {
         const piece = gameState.board[fromIndex];
         if (!piece || piece.playerIndex !== myPlayerIndex) return [];
@@ -141,8 +35,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
         const fromCol = fromIndex % 8;
 
         if (!piece.isKing) {
-            // === ОБЫЧНЫЕ ШАШКИ ===
-            // Простые ходы (только вперед)
             const moveDirection = piece.playerIndex === 0 ? -1 : 1;
             for (const dCol of [-1, 1]) {
                 const toRow = fromRow + moveDirection;
@@ -157,7 +49,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                 }
             }
             
-            // Ходы со взятием (во все 4 направления - вперед И назад!)
             for (const dRow of [-1, 1]) {
                 for (const dCol of [-1, 1]) {
                     const capturedRow = fromRow + dRow;
@@ -179,10 +70,8 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                 }
             }
         } else {
-            // === ДАМКИ ===
             for (const dRow of [-1, 1]) {
                 for (const dCol of [-1, 1]) {
-                    // Простые ходы дамки (на любое расстояние)
                     for (let i = 1; i < 8; i++) {
                         const toRow = fromRow + dRow * i;
                         const toCol = fromCol + dCol * i;
@@ -195,15 +84,12 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
 
                         const targetPiece = gameState.board[toIndex];
                         if (!targetPiece) {
-                            // Пустая клетка - можем ходить
                             moves.push(toIndex);
                         } else {
-                            // Встретили фигуру - останавливаемся
                             break;
                         }
                     }
 
-                    // "Летающее" взятие дамкой
                     let capturedPiece: Piece | null = null;
                     let capturedIndex: number | null = null;
                     
@@ -221,18 +107,14 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                         
                         if (currentPiece) {
                             if (currentPiece.playerIndex === piece.playerIndex) {
-                                // Своя фигура - путь закрыт
                                 break;
                             }
                             if (capturedPiece) {
-                                // Вторая фигура противника - путь закрыт
                                 break;
                             }
-                            // Первая фигура противника
                             capturedPiece = currentPiece;
                             capturedIndex = currentIndex;
                         } else if (capturedPiece) {
-                            // Пустая клетка после фигуры противника - валидный ход
                             moves.push(currentIndex);
                         }
                     }
@@ -243,7 +125,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
         return moves;
     };
 
-    // Мемоизируем возможные ходы для выбранной фигуры
     const possibleMoves = useMemo(() => {
         if (selectedPiece === null || !isMyTurn || isGameFinished) return [];
         return getPossibleMoves(selectedPiece);
@@ -255,33 +136,27 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
         const piece = gameState.board[index];
 
         if (selectedPiece !== null) {
-            // Если кликнули на ту же шашку, снимаем выделение
             if (selectedPiece === index) {
                 setSelectedPiece(null);
                 return;
             }
             
-            // Если кликнули на свою другую шашку, переключаем выделение
             if (piece && piece.playerIndex === myPlayerIndex) {
                 setSelectedPiece(index);
                 return;
             }
             
-            // Проверяем, является ли ход возможным
             if (possibleMoves.includes(index)) {
                 onMove({ from: selectedPiece, to: index });
                 setSelectedPiece(null);
             } else {
-                // Если ход невозможен, снимаем выделение
                 setSelectedPiece(null);
             }
         } else if (piece && piece.playerIndex === myPlayerIndex) {
-            // Выбираем свою шашку
             setSelectedPiece(index);
         }
     };
 
-    // Drag & Drop обработчики
     const handleDragStart = (e: React.DragEvent, index: number) => {
         if (!isMyTurn || isGameFinished) {
             e.preventDefault();
@@ -297,18 +172,15 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
         setDraggedPiece(index);
         setSelectedPiece(index);
         
-        // Устанавливаем данные для drag & drop
         e.dataTransfer.setData('text/plain', index.toString());
         e.dataTransfer.effectAllowed = 'move';
         
-        // Создаем кастомное изображение для перетаскивания
         const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
         dragImage.style.transform = 'rotate(5deg) scale(1.1)';
         dragImage.style.opacity = '0.8';
         document.body.appendChild(dragImage);
         e.dataTransfer.setDragImage(dragImage, 25, 25);
         
-        // Удаляем временный элемент
         setTimeout(() => document.body.removeChild(dragImage), 0);
     };
 
@@ -349,7 +221,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
 
     return (
         <div className={styles.boardContainer}>
-            {/* Компактная информация о текущем игроке */}
             <div style={{
                 marginBottom: '15px',
                 textAlign: 'center',
@@ -358,11 +229,11 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                 color: isMyTurn ? '#059669' : '#64748b'
             }}>
                 {isGameFinished ? (
-                    <span style={{ color: '#dc2626' }}>Игра завершена</span>
+                    <span style={{ color: '#dc2626' }}>Game Finished</span>
                 ) : isMyTurn ? (
-                    <span>Ваш ход</span>
+                    <span>Your Turn</span>
                 ) : (
-                    <span>Ход противника</span>
+                    <span>Opponent's Turn</span>
                 )}
             </div>
             
@@ -376,7 +247,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                     const isDraggedOver = dragOverSquare === index;
                     const isDragging = draggedPiece === index;
 
-                    // Определяем CSS классы для квадрата
                     const squareClasses = [
                         styles.square,
                         isDark ? styles.dark : styles.light,
@@ -406,12 +276,10 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                                 </div>
                             )}
                             
-                            {/* Индикатор возможного хода */}
                             {isPossibleMove && !piece && (
                                 <div className={styles.moveIndicator}></div>
                             )}
                             
-                            {/* Индикатор возможного взятия */}
                             {isPossibleMove && piece && piece.playerIndex !== myPlayerIndex && (
                                 <div className={styles.captureIndicator}></div>
                             )}
@@ -420,7 +288,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                 })}
             </div>
             
-            {/* Легенда внизу */}
             <div style={{
                 marginTop: '15px',
                 display: 'flex',
@@ -437,7 +304,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                         backgroundColor: '#f5f5f5',
                         border: '1px solid #ccc'
                     }}></div>
-                    <span>Белые {myPlayerIndex === 0 ? '(Вы)' : ''}</span>
+                    <span>White {myPlayerIndex === 0 ? '(You)' : ''}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <div style={{
@@ -447,7 +314,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = ({ gameState, onMove, isMyTu
                         backgroundColor: '#1e1e1e',
                         border: '1px solid #333'
                     }}></div>
-                    <span>Черные {myPlayerIndex === 1 ? '(Вы)' : ''}</span>
+                    <span>Black {myPlayerIndex === 1 ? '(You)' : ''}</span>
                 </div>
             </div>
         </div>

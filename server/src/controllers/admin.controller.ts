@@ -8,12 +8,9 @@ import Tournament from '../models/Tournament.model';
 import Transaction from '../models/Transaction.model';
 import GameRecord from '../models/GameRecord.model';
 import { createNotification } from '../services/notification.service';
+import { createTournament as createTournamentService } from '../services/tournament.service';
 import path from 'path';
 
-
-
-// Временное хранилище комнат (в идеале должно быть синхронизировано с socket.ts)
-// Мы решим это элегантно в app.ts
 let roomsRef: Record<string, Room> = {}; 
 let gameLogicsRef: Record<string, IGameLogic> = {};
 
@@ -36,13 +33,12 @@ export const createAdminRoom = (req: Request, res: Response) => {
         id: roomId,
         gameType,
         bet,
-        players: [], // Комната создается ПУСТОЙ
-        gameState: null, // Начальное состояние не создается, пока не войдет первый игрок
+        players: [],
+        gameState: null,
     };
 
     roomsRef[roomId] = newRoom;
 
-    // Оповещаем всех в лобби о новой комнате
     const io: Server = req.app.get('io');
     const availableRooms = Object.values(roomsRef)
         .filter(room => room.gameType === gameType && room.players.length < 2)
@@ -54,9 +50,7 @@ export const createAdminRoom = (req: Request, res: Response) => {
     res.status(201).json({ message: 'The room was created successfully', room: newRoom });
 };
 
-/** [ADMIN] Получить список активных комнат */
 export const getActiveRooms = (req: Request, res: Response) => {
-    // roomsRef инжектируется при старте сервера
     const publicRooms = Object.values(roomsRef).map(room => {
         return {
             id: room.id,
@@ -68,20 +62,16 @@ export const getActiveRooms = (req: Request, res: Response) => {
     res.json(publicRooms);
 };
 
-/** [ADMIN] Принудительно удалить комнату */
 export const deleteRoom = (req: Request, res: Response) => {
     const { roomId } = req.params;
     const room = roomsRef[roomId];
     const io: Server = req.app.get('io');
     
     if (room) {
-        // Оповещаем игроков в комнате, что админ ее закрыл
         io.to(roomId).emit('error', { message: 'The room was closed by the administrator.' });
         
-        // Удаляем комнату
         delete roomsRef[roomId];
         
-        // Обновляем лобби для всех
         const availableRooms = Object.values(roomsRef) /* ... */;
         io.to(`lobby-${room.gameType}`).emit('roomsList', availableRooms);
         
@@ -99,21 +89,34 @@ export const createTournament = async (req: Request, res: Response) => {
     }
 
     try {
-        const tournament = new Tournament({
+        const io: Server = req.app.get('io');
+        
+        // Calculate prize pool (90% of total entry fees)
+        const totalEntryFees = Number(entryFee) * Number(maxPlayers);
+        const prizePool = Math.floor(totalEntryFees * 0.9);
+        const platformCommission = 10; // 10%
+
+        const tournament = await createTournamentService(
+            io,
             name,
             gameType,
-            entryFee: Number(entryFee) || 0,
-            maxPlayers: Number(maxPlayers)
-        });
+            Number(maxPlayers),
+            Number(entryFee) || 0,
+            prizePool,
+            platformCommission
+        );
 
-        await tournament.save();
+        if (!tournament) {
+            return res.status(400).json({ message: 'Failed to create tournament. Invalid game type or parameters.' });
+        }
+
         res.status(201).json(tournament);
     } catch (error: any) {
+        console.error('[Admin] Error creating tournament:', error);
         res.status(500).json({ message: 'Server Error when creating a tournament', error: error.message });
     }
 };
 
-/** [ADMIN] Обновление турнира */
 export const updateTournament = async (req: Request, res: Response) => {
     try {
         const tournament = await Tournament.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -124,7 +127,6 @@ export const updateTournament = async (req: Request, res: Response) => {
     }
 };
 
-/** [ADMIN] Удаление турнира */
 export const deleteTournament = async (req: Request, res: Response) => {
     try {
         const tournament = await Tournament.findByIdAndDelete(req.params.id);
@@ -135,10 +137,6 @@ export const deleteTournament = async (req: Request, res: Response) => {
     }
 };
 
-
-/**
- * [ADMIN] Получить список всех пользователей
- */
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
         const users = await User.find({}).select('-password');
@@ -148,9 +146,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Получить одного пользователя по ID
- */
 export const getUserById = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
@@ -163,9 +158,6 @@ export const getUserById = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Обновить пользователя
- */
 export const updateUser = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id);
@@ -173,7 +165,6 @@ export const updateUser = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Обновляем только разрешенные поля
         user.username = req.body.username || user.username;
         user.email = req.body.email || user.email;
         user.role = req.body.role || user.role;
@@ -192,9 +183,6 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Удалить пользователя
- */
 export const deleteUser = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id);
@@ -202,14 +190,13 @@ export const deleteUser = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'User not found' });
         }
         
-        await user.deleteOne(); // Используем новый метод Mongoose
-        res.json({ message: 'Пользователь успешно удален' });
+        await user.deleteOne();
+        res.json({ message: 'User successfully deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
-/** [ADMIN] Получить все транзакции */
 export const getAllTransactions = async (req: Request, res: Response) => {
     try {
         const transactions = await Transaction.find({}).populate('user', 'username').sort({ createdAt: -1 });
@@ -219,7 +206,6 @@ export const getAllTransactions = async (req: Request, res: Response) => {
     }
 };
 
-/** [ADMIN] Получить всю историю игр */
 export const getAllGameRecords = async (req: Request, res: Response) => {
     try {
         const games = await GameRecord.find({}).populate('user', 'username').sort({ createdAt: -1 });
@@ -229,18 +215,14 @@ export const getAllGameRecords = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Получить все заявки на KYC
- */
 export const getKycSubmissions = async (req: Request, res: Response) => {
     try {
-        const { status } = req.query; // Получаем статус из query-параметров
+        const { status } = req.query;
         
         const filter: any = {};
         if (status && ['PENDING', 'APPROVED', 'REJECTED'].includes(status as string)) {
             filter.kycStatus = status;
         } else {
-            // Если статус не указан или некорректен, показываем только заявки в ожидании
             filter.kycStatus = 'PENDING';
         }
 
@@ -251,12 +233,9 @@ export const getKycSubmissions = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Одобрить или отклонить заявку KYC
- */
 export const reviewKycSubmission = async (req: Request, res: Response) => {
     const { userId } = req.params;
-    const { action, reason } = req.body; // action: 'APPROVE' or 'REJECT'
+    const { action, reason } = req.body;
 
     try {
         const user = await User.findById(userId);
@@ -283,7 +262,6 @@ export const reviewKycSubmission = async (req: Request, res: Response) => {
         
         await user.save();
 
-        // Отправляем обновление KYC статуса через Socket.IO
         if (io) {
             io.emit('kycStatusUpdated', {
                 userId: userId,
@@ -299,18 +277,14 @@ export const reviewKycSubmission = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * [ADMIN] Отдает файл документа KYC для просмотра
- */
 export const getKycDocument = async (req: Request, res: Response) => {
     const { userId, fileName } = req.params;
     try {
         const user = await User.findById(userId);
         if (!user || !user.kycDocuments.some(doc => doc.filePath.endsWith(fileName))) {
-            return res.status(404).json({ message: 'Документ не найден или доступ запрещен.' });
+            return res.status(404).json({ message: 'Document not found or access denied.' });
         }
         
-        // ИСПРАВЛЕНИЕ: Используем path.resolve для построения надежного абсолютного пути
         const filePath = path.resolve(process.cwd(), `private/kyc-documents/${fileName}`);
         
         res.sendFile(filePath, (err) => {

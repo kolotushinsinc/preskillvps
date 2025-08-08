@@ -3,7 +3,7 @@ import { Room } from '../socket';
 
 type TicTacToeState = {
     board: ('X' | 'O' | null)[];
-    turn: string; // userId
+    turn: string;
 };
 
 export const ticTacToeLogic: IGameLogic = {
@@ -28,52 +28,46 @@ export const ticTacToeLogic: IGameLogic = {
     processMove(gameState: TicTacToeState, move: { cellIndex: number }, playerId: string, players: Room['players']) {
         console.log(`[TicTacToe] Processing move for player ${playerId}, cell: ${move.cellIndex}`);
 
-        // Проверяем очередность хода
         if (gameState.turn && gameState.turn.toString() !== playerId.toString()) {
             console.log(`[TicTacToe] Turn check failed: expected ${gameState.turn}, got ${playerId}`);
-            return { newState: gameState, error: "Сейчас не ваш ход.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Not your turn.", turnShouldSwitch: false };
         }
 
-        // Проверяем валидность хода
         if (!move || typeof move.cellIndex !== 'number') {
             console.log(`[TicTacToe] Invalid move format:`, move);
-            return { newState: gameState, error: "Неверный формат хода.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Invalid move format.", turnShouldSwitch: false };
         }
 
         if (move.cellIndex < 0 || move.cellIndex > 8) {
             console.log(`[TicTacToe] Cell index out of bounds: ${move.cellIndex}`);
-            return { newState: gameState, error: "Недопустимый индекс клетки.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Invalid cell index.", turnShouldSwitch: false };
         }
 
         if (gameState.board[move.cellIndex] !== null) {
             console.log(`[TicTacToe] Cell already occupied: ${move.cellIndex}`);
-            return { newState: gameState, error: "Клетка уже занята.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Cell already occupied.", turnShouldSwitch: false };
         }
 
-        // Определяем символ игрока
         // @ts-ignore
         const playerIndex = players.findIndex(p => p.user._id.toString() === playerId.toString());
         if (playerIndex === -1) {
             console.log(`[TicTacToe] Player not found in players list`);
-            return { newState: gameState, error: "Игрок не найден.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Player not found.", turnShouldSwitch: false };
         }
 
         const playerSymbol = playerIndex === 0 ? 'X' : 'O';
         console.log(`[TicTacToe] Player ${playerId} (index ${playerIndex}) plays ${playerSymbol}`);
 
-        // Делаем ход
         const newBoard = [...gameState.board];
         newBoard[move.cellIndex] = playerSymbol;
 
-        // Определяем следующего игрока
         // @ts-ignore
         const nextPlayer = players.find(p => p.user._id.toString() !== playerId.toString());
         if (!nextPlayer) {
             console.log(`[TicTacToe] Next player not found`);
-            return { newState: gameState, error: "Следующий игрок не найден.", turnShouldSwitch: false };
+            return { newState: gameState, error: "Next player not found.", turnShouldSwitch: false };
         }
 
-        // Создаем новое состояние игры с переключенным ходом
         const newGameState = { 
             ...gameState, 
             board: newBoard, 
@@ -83,7 +77,6 @@ export const ticTacToeLogic: IGameLogic = {
 
         console.log(`[TicTacToe] Move successful, next turn: ${newGameState.turn}`);
 
-        // В крестиках-ноликах ход ВСЕГДА переключается
         return { newState: newGameState, error: undefined, turnShouldSwitch: true };
     },
 
@@ -121,7 +114,7 @@ export const ticTacToeLogic: IGameLogic = {
         });
 
         if (availableCells.length === 0) {
-            return { cellIndex: -1 }; // Нет доступных ходов
+            return { cellIndex: -1 };
         }
 
         const randomIndex = Math.floor(Math.random() * availableCells.length);

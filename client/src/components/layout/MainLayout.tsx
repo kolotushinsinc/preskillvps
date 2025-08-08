@@ -5,7 +5,6 @@ import Header from './Header';
 import { useUI } from '../../context/UIContext';
 import styles from './MainLayout.module.css';
 
-// Импорты всех страниц
 import DashboardPage from '../../pages/DashboardPage/DashboardPage';
 import HomePage from '../../pages/HomePage/HomePage';
 import TournamentsListPage from '../../pages/TournamentsListPage/TournamentsListPage';
@@ -17,6 +16,7 @@ import LobbyPage from '../../pages/LobbyPage/LobbyPage';
 import GamePage from '../../pages/GamePage/GamePage';
 import AdminPage from '../../pages/AdminPage/AdminPage';
 import AdminRoute from '../AdminRoute/AdminRoute';
+import DemoPaymentPage from '../../pages/DemoPaymentPage/DemoPaymentPage';
 
 const MainLayout: React.FC = () => {
     const { isSidebarOpen } = useUI();
@@ -38,6 +38,7 @@ const MainLayout: React.FC = () => {
                         <Route path="/notifications" element={<NotificationsPage />} />
                         <Route path="/lobby/:gameType" element={<LobbyPage />} />
                         <Route path="/game/:gameType/:roomId" element={<GamePage />} />
+                        <Route path="/demo-payment" element={<DemoPaymentPage />} />
 
                         <Route element={<AdminRoute />}>
                             <Route path="/admin" element={<AdminPage />} />

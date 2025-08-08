@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
         { path: '/transactions', icon: List, label: 'Transactions' },
         { path: '/rooms', icon: Home, label: 'Rooms' },
         { path: '/tournaments', icon: Trophy, label: 'Tournaments' },
-        { path: '/kyc', icon: ShieldCheck, label: 'KYC Verification' }, // <-- Новая ссылка
+        { path: '/kyc', icon: ShieldCheck, label: 'KYC Verification' },
         { path: '/create-room', icon: PlusSquare, label: 'Create Room' },
     ];
 

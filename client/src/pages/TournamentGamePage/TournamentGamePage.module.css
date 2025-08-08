@@ -533,7 +533,6 @@
     font-weight: 700;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;

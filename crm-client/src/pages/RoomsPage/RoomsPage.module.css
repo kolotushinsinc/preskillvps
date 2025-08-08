@@ -81,7 +81,7 @@
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 6px;
-    color: #ef4444; /* red */
+    color: #ef4444;
 }
 .deleteButton:hover {
     background-color: #fee2e2;

@@ -22,14 +22,11 @@ const RegisterPage: React.FC = () => {
         setError('');
         setIsLoading(true);
         try {
-            // 1. Отправляем запрос на регистрацию
             const { data } = await axios.post(`${API_URL}/api/auth/register`, { username, email, password });
             
-            // 2. ИСПОЛЬЗУЕМ ПОЛУЧЕННЫЕ ДАННЫЕ ДЛЯ АВТОМАТИЧЕСКОГО ВХОДА
             const { token, ...user } = data;
             login({ token, user });
 
-            // 3. Перенаправляем на главную страницу
             navigate('/');
 
         } catch (err: any) {

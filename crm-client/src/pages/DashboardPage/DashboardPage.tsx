@@ -5,7 +5,6 @@ import { Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { getAdminUsers, getAdminGameRecords } from '../../services/adminService';
 
-// Регистрируем компоненты Chart.js
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
 const DashboardPage: React.FC = () => {
@@ -26,7 +25,6 @@ const DashboardPage: React.FC = () => {
         fetchData();
     }, []);
     
-    // Данные для графиков пока будут статичными, их можно будет подключить позже
     const lineChartData = {
         labels: ['2024-01-11', '2024-01-12', '2024-01-13', '2024-01-14', '2024-01-15'],
         datasets: [{ label: 'Daily Active Users', data: [240, 290, 250, 310, 320], fill: false, borderColor: '#2563eb', tension: 0.1 }]
@@ -44,22 +42,18 @@ const DashboardPage: React.FC = () => {
             </div>
 
             <div className={styles.statsGrid}>
-                {/* Total Users */}
                 <div className={styles.statCard}>
                     <div className={styles.statInfo}><p>Total Users</p><p>{totalUsers}</p><p>+12% vs last month</p></div>
                     <div className={styles.statIcon} style={{backgroundColor: '#2563eb'}}><Users /></div>
                 </div>
-                {/* Active Users */}
                 <div className={styles.statCard}>
                     <div className={styles.statInfo}><p>Active Users</p><p>892</p><p>+8% vs last month</p></div>
                     <div className={styles.statIcon} style={{backgroundColor: '#16a34a'}}><UserCheck /></div>
                 </div>
-                {/* Total Games */}
                 <div className={styles.statCard}>
                     <div className={styles.statInfo}><p>Total Games</p><p>{totalGames}</p><p>+15% vs last month</p></div>
                     <div className={styles.statIcon} style={{backgroundColor: '#9333ea'}}><Gamepad2 /></div>
                 </div>
-                {/* Total Revenue */}
                 <div className={styles.statCard}>
                     <div className={styles.statInfo}><p>Total Revenue</p><p>$124,500</p><p>+23% vs last month</p></div>
                     <div className={styles.statIcon} style={{backgroundColor: '#f97316'}}><Landmark /></div>

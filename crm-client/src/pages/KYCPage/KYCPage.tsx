@@ -8,7 +8,7 @@ const KYCPage: React.FC = () => {
     const [submissions, setSubmissions] = useState<IKycSubmission[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewingDoc, setViewingDoc] = useState<string | null>(null);
-    const [filter, setFilter] = useState<KycFilter>('PENDING'); // По умолчанию показываем заявки в ожидании
+    const [filter, setFilter] = useState<KycFilter>('PENDING');
 
     const fetchSubmissions = useCallback(async () => {
         try {
@@ -30,21 +30,18 @@ const KYCPage: React.FC = () => {
         let reason: string | null = null;
         const actionText = action === 'APPROVE' ? 'approve' : 'reject';
 
-        // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-        // Добавляем диалоговое окно для подтверждения
         if (!window.confirm(`Are you sure you want to ${actionText} request from user ${username}?`)) {
-            return; // Если админ нажал "Отмена", ничего не делаем
+            return;
         }
-        // ------------------------
 
         if (action === 'REJECT') {
             reason = prompt('Please indicate the reason for refusal:');
-            if (!reason) return; // Админ нажал "Отмена" в окне причины
+            if (!reason) return;
         }
 
         try {
             await reviewKycSubmission(userId, action, reason || undefined);
-            fetchSubmissions(); // Обновляем список после действия
+            fetchSubmissions();
         } catch (error) {
             alert('Не удалось обработать заявку.');
         }
@@ -75,7 +72,6 @@ const KYCPage: React.FC = () => {
                 <h1>Verification Requests</h1>
             </div>
             
-            {/* --- НОВЫЙ БЛОК: Кнопки-фильтры --- */}
             <div className={styles.filterBar}>
                 <button onClick={() => setFilter('PENDING')} className={`${styles.filterButton} ${filter === 'PENDING' ? styles.active : ''}`}>Pending</button> 
                 <button onClick={() => setFilter('APPROVED')} className={`${styles.filterButton} ${filter === 'APPROVED' ? styles.active : ''}`}>Approved</button> 

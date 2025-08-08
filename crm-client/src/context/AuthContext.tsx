@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if (data.role === 'ADMIN') {
                         setUser(data);
                     } else {
-                        // Если пользователь не админ, выкидываем его
                         logout();
                     }
                 } catch (error) {

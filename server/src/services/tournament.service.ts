@@ -30,11 +30,11 @@ export async function createTournament(
         console.log(`[Tournament] Creating tournament: ${name}, ${gameType}, ${maxPlayers} players`);
 
         if (![4, 8, 16, 32].includes(maxPlayers)) {
-            throw new Error('Количество игроков должно быть 4, 8, 16 или 32');
+            throw new Error('Number of players must be 4, 8, 16 or 32');
         }
 
-        if (!['checkers', 'chess', 'backgammon', 'tic-tac-toe'].includes(gameType)) {
-            throw new Error('Неподдерживаемый тип игры');
+        if (!['checkers', 'chess', 'backgammon', 'tic-tac-toe', 'durak', 'domino', 'dice', 'bingo'].includes(gameType)) {
+            throw new Error('Unsupported game type');
         }
 
         const tournament = new Tournament({
@@ -76,28 +76,28 @@ export async function registerPlayerInTournament(
 
         const tournament = activeTournaments[tournamentId] || await Tournament.findById(tournamentId);
         if (!tournament) {
-            return { success: false, message: 'Турнир не найден' };
+            return { success: false, message: 'Tournament not found' };
         }
 
         if (tournament.status !== 'WAITING') {
-            return { success: false, message: 'Турнир уже начался или завершен' };
+            return { success: false, message: 'Tournament already started or finished' };
         }
 
         if (tournament.players.some(p => p._id === userId)) {
-            return { success: false, message: 'Вы уже зарегистрированы в этом турнире' };
+            return { success: false, message: 'You are already registered in this tournament' };
         }
 
         if (tournament.players.length >= tournament.maxPlayers) {
-            return { success: false, message: 'Турнир заполнен' };
+            return { success: false, message: 'Tournament is full' };
         }
 
         const user = await User.findById(userId);
         if (!user) {
-            return { success: false, message: 'Пользователь не найден' };
+            return { success: false, message: 'User not found' };
         }
 
         if (user.balance < tournament.entryFee) {
-            return { success: false, message: 'Недостаточно средств для участия' };
+            return { success: false, message: 'Insufficient funds to participate' };
         }
 
         user.balance -= tournament.entryFee;
@@ -136,8 +136,8 @@ export async function registerPlayerInTournament(
         io.emit('tournamentUpdated', tournament);
 
         await createNotification(io, userId, {
-            title: `🎯 Регистрация в турнире "${tournament.name}"`,
-            message: `Вы успешно зарегистрированы! Игроков: ${tournament.players.length}/${tournament.maxPlayers}`,
+            title: `🎯 Tournament Registration "${tournament.name}"`,
+            message: `Successfully registered! Players: ${tournament.players.length}/${tournament.maxPlayers}`,
             link: `/tournament/${tournamentId}`
         });
 
@@ -151,10 +151,10 @@ export async function registerPlayerInTournament(
             await startTournament(io, tournamentId);
         }
 
-        return { success: true, message: 'Успешно зарегистрированы в турнире' };
+        return { success: true, message: 'Successfully registered in tournament' };
     } catch (error) {
         console.error(`[Tournament] Error registering player:`, error);
-        return { success: false, message: 'Ошибка регистрации в турнире' };
+        return { success: false, message: 'Tournament registration error' };
     }
 }
 
@@ -230,8 +230,8 @@ async function startTournament(io: Server, tournamentId: string): Promise<void> 
         for (const player of tournament.players) {
             if (!player.isBot) {
                 await createNotification(io, player._id, {
-                    title: `🚀 Турнир "${tournament.name}" начался!`,
-                    message: `Игра: ${tournament.gameType}. Удачи в первом раунде!`,
+                    title: `🚀 Tournament "${tournament.name}" started!`,
+                    message: `Game: ${tournament.gameType}. Good luck in the first round!`,
                     link: `/tournament/${tournamentId}`
                 });
             }
@@ -420,7 +420,6 @@ export async function advanceTournamentWinner(
 
         console.log(`[Tournament] Winner ${winner.username} advanced in tournament ${tournamentId}`);
 
-        // КРИТИЧЕСКИ ВАЖНО: Проверяем, нужно ли создать следующий раунд
         if (allMatchesFinished) {
             console.log(`[Tournament] Round ${currentRound.round} finished, checking next round`);
             
@@ -486,7 +485,6 @@ export function cleanupFinishedTournaments(): void {
     });
 }
 
-// Обработка выхода игрока из турнирного матча
 export async function handleTournamentPlayerLeft(
     io: Server,
     matchId: string,
@@ -496,17 +494,14 @@ export async function handleTournamentPlayerLeft(
     try {
         console.log(`[Tournament] Player ${playerId} left match ${matchId} at ${timestamp}`);
         
-        // Уведомляем всех участников матча о том, что игрок покинул игру
         io.to(`tournament-${matchId}`).emit('tournamentPlayerLeft', {
             matchId,
             playerId,
             timestamp,
-            message: 'Игрок покинул матч. У него есть 30 секунд на возврат.'
+            message: 'Player left the match. They have 30 seconds to return.'
         });
         
-        // Запускаем таймер на 30 секунд
         setTimeout(() => {
-            // Проверяем, вернулся ли игрок
             checkPlayerReturnStatus(io, matchId, playerId, timestamp);
         }, 30000);
         
@@ -515,7 +510,6 @@ export async function handleTournamentPlayerLeft(
     }
 }
 
-// Обработка возврата игрока в турнирный матч
 export async function handleTournamentPlayerReturned(
     io: Server,
     matchId: string,
@@ -524,11 +518,10 @@ export async function handleTournamentPlayerReturned(
     try {
         console.log(`[Tournament] Player ${playerId} returned to match ${matchId}`);
         
-        // Уведомляем всех участников матча о возврате игрока
         io.to(`tournament-${matchId}`).emit('tournamentPlayerReturned', {
             matchId,
             playerId,
-            message: 'Игрок вернулся в матч!'
+            message: 'Player returned to the match!'
         });
         
     } catch (error) {
@@ -536,7 +529,6 @@ export async function handleTournamentPlayerReturned(
     }
 }
 
-// Обработка окончательного выхода игрока (forfeit)
 export async function handleTournamentPlayerForfeited(
     io: Server,
     matchId: string,
@@ -546,12 +538,10 @@ export async function handleTournamentPlayerForfeited(
     try {
         console.log(`[Tournament] Player ${playerId} forfeited match ${matchId}, reason: ${reason}`);
         
-        // Находим турнир и матч
         let tournament: ITournament | null = null;
         let currentRoundIndex = -1;
         let matchIndex = -1;
         
-        // Ищем турнир, содержащий этот матч
         for (const tournamentId of Object.keys(activeTournaments)) {
             const t = activeTournaments[tournamentId];
             for (let i = 0; i < t.bracket.length; i++) {
@@ -574,7 +564,6 @@ export async function handleTournamentPlayerForfeited(
         
         const match = tournament.bracket[currentRoundIndex].matches[matchIndex];
         
-        // Определяем победителя (противника игрока, который сдался)
         let winner;
         if (match.player1._id === playerId) {
             winner = match.player2;
@@ -585,11 +574,9 @@ export async function handleTournamentPlayerForfeited(
             return;
         }
         
-        // Обновляем статус матча в турнире
         match.winner = winner;
         match.status = 'FINISHED';
         
-        // Обновляем турнирную комнату если она существует
         const { tournamentRooms } = await import('./tournamentRoom.service');
         if (tournamentRooms[matchId]) {
             tournamentRooms[matchId].status = 'FINISHED';
@@ -598,19 +585,16 @@ export async function handleTournamentPlayerForfeited(
         
         await tournament.save();
         
-        // Уведомляем всех участников матча о forfeit
         io.to(`tournament-${matchId}`).emit('tournamentGameEnd', {
             matchId,
             winner,
             isDraw: false,
             reason: 'forfeit',
-            message: `Игрок покинул матч. Победа присуждена ${winner.username}!`
+            message: `Player left the match. Victory awarded to ${winner.username}!`
         });
         
-        // Продвигаем победителя в следующий раунд
         await advanceTournamentWinner(io, tournament._id.toString(), matchId, winner);
         
-        // Проверяем, нужно ли создать следующий раунд или завершить турнир
         const { checkAndCreateNextRound } = await import('./tournamentRoom.service');
         setTimeout(async () => {
             const updatedTournament = await Tournament.findById(tournament._id);
@@ -624,7 +608,6 @@ export async function handleTournamentPlayerForfeited(
     }
 }
 
-// Проверка статуса возврата игрока
 async function checkPlayerReturnStatus(
     io: Server,
     matchId: string,
@@ -632,12 +615,7 @@ async function checkPlayerReturnStatus(
     leftTimestamp: number
 ): Promise<void> {
     try {
-        // Здесь можно добавить логику проверки, вернулся ли игрок
-        // Если игрок не вернулся, автоматически засчитываем forfeit
         console.log(`[Tournament] Checking return status for player ${playerId} in match ${matchId}`);
-        
-        // В реальной реализации здесь должна быть проверка активности игрока
-        // Пока что просто логируем событие
     } catch (error) {
         console.error(`[Tournament] Error checking player return status:`, error);
     }

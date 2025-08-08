@@ -4,15 +4,12 @@ import styles from './AdminPage.module.css';
 import { PlusCircle, Trophy } from 'lucide-react';
 
 const AdminPage: React.FC = () => {
-    // Состояние для переключения вкладок
     const [activeTab, setActiveTab] = useState('createTournament');
     
-    // Состояние для формы создания комнаты
     const [lobbyGameType, setLobbyGameType] = useState('tic-tac-toe');
     const [lobbyBet, setLobbyBet] = useState(50);
     const [lobbyMessage, setLobbyMessage] = useState('');
 
-    // Состояние для формы создания турнира
     const [tourneyName, setTourneyName] = useState('Daily tournament');
     const [tourneyGameType, setTourneyGameType] = useState('chess');
     const [tourneyEntryFee, setTourneyEntryFee] = useState(10);
@@ -73,6 +70,10 @@ const AdminPage: React.FC = () => {
                                     <option value="checkers">Checkers</option>
                                     <option value="tic-tac-toe">Tic Tac Toe</option>
                                     <option value="backgammon">Backgammon</option>
+                                    <option value="bingo">Bingo</option>
+                                    <option value="durak">Durak</option>
+                                    <option value="domino">Domino</option>
+                                    <option value="dice">Dice</option>
                                 </select>
                                 <input type="number" value={tourneyEntryFee} onChange={e => setTourneyEntryFee(Number(e.target.value))} min="0" placeholder="Entry fee" className={styles.formInput} />
                                 <select value={tourneyMaxPlayers} onChange={e => setTourneyMaxPlayers(Number(e.target.value))} className={styles.formSelect}>
@@ -99,6 +100,10 @@ const AdminPage: React.FC = () => {
                                     <option value="checkers">Checkers</option>
                                     <option value="chess">Chess</option>
                                     <option value="backgammon">Backgammon</option>
+                                    <option value="bingo">Bingo</option>
+                                    <option value="durak">Durak</option>
+                                    <option value="domino">Domino</option>
+                                    <option value="dice">Dice</option>
                                 </select>
                                 <input type="number" value={lobbyBet} onChange={e => setLobbyBet(Number(e.target.value))} min="1" placeholder="Bet" className={styles.formInput} />
                                 <button type="submit" className={styles.formButton}>Create room</button>

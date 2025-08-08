@@ -18,7 +18,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
     const [timeLeft, setTimeLeft] = useState(0);
     const location = useLocation();
 
-    // Проверяем активный таймер при загрузке и изменении маршрута
     useEffect(() => {
         const checkExitTimer = () => {
             const savedTimer = localStorage.getItem('tournamentExitTimer');
@@ -32,7 +31,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
                         setExitTimer(timerData);
                         setTimeLeft(Math.ceil(remaining / 1000));
                     } else {
-                        // Время истекло
                         localStorage.removeItem('tournamentExitTimer');
                         setExitTimer(null);
                         setTimeLeft(0);
@@ -51,7 +49,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
         checkExitTimer();
     }, [location.pathname]);
 
-    // Обновляем таймер каждую секунду
     useEffect(() => {
         if (!exitTimer) return;
 
@@ -63,12 +60,10 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
             setTimeLeft(secondsLeft);
 
             if (remaining <= 0) {
-                // Время истекло
                 localStorage.removeItem('tournamentExitTimer');
                 setExitTimer(null);
                 setTimeLeft(0);
                 
-                // Здесь можно добавить логику автоматического forfeit
                 console.log('Tournament exit timer expired');
             }
         }, 1000);
@@ -82,7 +77,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
             setExitTimer(null);
             setTimeLeft(0);
             
-            // Перенаправляем к игре
             window.location.href = `/tournament-game/${exitTimer.matchId}`;
         }
     };
@@ -92,7 +86,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
         setExitTimer(null);
         setTimeLeft(0);
         
-        // Здесь можно добавить логику forfeit через API
         console.log('Player confirmed exit from tournament');
     };
 
@@ -104,7 +97,6 @@ const TournamentExitManager: React.FC<TournamentExitManagerProps> = ({ children 
         <>
             {children}
             
-            {/* Плавающее окно с обратным отсчетом */}
             {shouldShowFloatingCountdown && (
                 <TournamentFloatingCountdown
                     isOpen={true}
