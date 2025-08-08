@@ -38,8 +38,8 @@ export const createDeposit = async (req: Request, res: Response) => {
             currency: 'USD',
             orderId,
             description,
-            returnUrl: `${process.env.CLIENT_URL || 'http://localhost:5173'}/profile?payment=success`,
-            webhookUrl: `${process.env.G2PAY_WEBHOOK_URL || 'http://localhost:5001/api/payments/webhook'}`,
+            returnUrl: `${process.env.CLIENT_URL || 'https://cabinetsklg.koltech.dev'}/profile?payment=success`,
+            webhookUrl: `${process.env.G2PAY_WEBHOOK_URL || 'https://sklgmsapi.koltech.dev/api/payments/webhook'}`,
             customerEmail: user.email
         });
 
