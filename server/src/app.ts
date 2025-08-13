@@ -7,8 +7,10 @@ import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
 import tournamentRoutes from './routes/tournament.routes';
+import tournamentTemplateRoutes from './routes/tournamentTemplate.routes';
 import notificationRoutes from './routes/notification.routes';
 import paymentRoutes from './routes/payment.routes';
+import chatRoutes from './routes/chat.routes';
 
 dotenv.config();
 
@@ -31,7 +33,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tournaments', tournamentRoutes);
+app.use('/api/tournament-templates', tournamentTemplateRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/chat', chatRoutes);
 
 export default app;

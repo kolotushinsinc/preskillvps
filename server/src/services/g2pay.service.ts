@@ -67,7 +67,7 @@ class G2PayService {
             signingKey: process.env.G2PAY_SIGNING_KEY || 'XEQ9nZoD0Snl',
             baseUrl: process.env.G2PAY_BASE_URL || 'https://api.g2pay.com',
             webhookUrl: process.env.G2PAY_WEBHOOK_URL || 'http://sklgmsapi.koltech.dev/api/payments/webhook',
-            clientUrl: process.env.CLIENT_URL || 'https://cabinetsklg.koltech.dev'
+            clientUrl: process.env.CLIENT_URL || 'https://platform.skillgame.pro'
         };
     }
 
