@@ -402,6 +402,8 @@ export const initializeSocket = (io: Server) => {
         if (initialUser) {
             // @ts-ignore
             userSocketMap[initialUser._id.toString()] = socket.id;
+            // @ts-ignore
+            socket.data = { userId: initialUser._id.toString() };
         }
 
         // Only handle game reconnection for authenticated users
@@ -612,7 +614,7 @@ export const initializeSocket = (io: Server) => {
             
             privateInvitations[invitationToken] = invitation;
 
-            const invitationUrl = `https://skillgame.pro/private-room/${invitationToken}`;
+            const invitationUrl = `https://platform.skillgame.pro/private-room/${invitationToken}`;
             
             socket.emit('privateRoomCreated', {
                 room: getPublicRoomState(newRoom),
