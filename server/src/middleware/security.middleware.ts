@@ -39,11 +39,11 @@ const securityLogger = winston.createLogger({
 
 // Enhanced CORS configuration
 export const corsConfig = {
-  origin: true, // Allow all origins
-  credentials: true,
+  origin: '*', // Allow all origins explicitly
+  credentials: false, // Cannot be true when origin is '*'
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-socket-id']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-socket-id', 'Access-Control-Allow-Origin']
 };
 
 // Enhanced Helmet configuration for security headers
