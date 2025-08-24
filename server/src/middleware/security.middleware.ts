@@ -40,22 +40,30 @@ const securityLogger = winston.createLogger({
 // Enhanced CORS configuration
 export const corsConfig = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5178',
-      'http://localhost:5177',
+    // Base allowed origins that should always work
+    const baseOrigins = [
       'https://platform.skillgame.pro',
       'https://crm.skillgame.pro'
     ];
     
+    // Merge with environment variable if provided
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',').filter(Boolean) || [];
+    const allowedOrigins = [...new Set([...baseOrigins, ...envOrigins])];
+    
+    console.log(`[CORS] Checking origin: ${origin} against allowed: ${allowedOrigins.join(', ')}`);
+    
     // Allow requests with no origin (mobile apps, postman)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('[CORS] No origin - allowing');
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`[CORS] Origin ${origin} allowed`);
       callback(null, true);
     } else {
-      securityLogger.warn('CORS block attempt', { origin, timestamp: new Date() });
+      console.log(`[CORS] Origin ${origin} BLOCKED`);
+      securityLogger.warn('CORS block attempt', { origin, allowedOrigins, timestamp: new Date() });
       callback(new Error('Not allowed by CORS'));
     }
   },

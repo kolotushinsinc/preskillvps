@@ -235,10 +235,6 @@ export const validateOrigin = (req: Request, res: Response, next: NextFunction) 
   try {
     const originUrl = new URL(origin);
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5178',
-      'http://localhost:5177',
       'https://platform.skillgame.pro',
       'https://crm.skillgame.pro'
     ];

@@ -18,6 +18,9 @@ const app = express();
 // Apply CORS middleware
 app.use(cors(corsConfig));
 
+// Handle preflight requests explicitly
+app.options('*', cors(corsConfig));
+
 app.use(express.json());
 
 app.get('/health', (req, res) => {
@@ -25,6 +28,14 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
+  });
+});
+
+app.get('/cors-test', (req, res) => {
+  res.json({
+    message: 'CORS test successful',
+    origin: req.get('Origin'),
+    timestamp: new Date().toISOString()
   });
 });
 
