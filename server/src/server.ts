@@ -15,8 +15,16 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5178',
+      'http://localhost:5177',
+      'https://platform.skillgame.pro',
+      'https://crm.skillgame.pro'
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
