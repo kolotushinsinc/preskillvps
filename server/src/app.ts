@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
@@ -11,6 +12,7 @@ import chatRoutes from './routes/chat.routes';
 import gameLobbySchedulerRoutes from './routes/gameLobbyScheduler.routes';
 import securityRoutes from './routes/security.routes';
 import sumsubRoutes from './routes/sumsub.routes';
+import platformRevenueRoutes from './routes/platformRevenue.routes';
 import { corsConfig } from './middleware/security.middleware';
 
 const app = express();
@@ -33,6 +35,9 @@ app.use((req, res, next) => {
 app.use(cors(corsConfig));
 
 app.use(express.json());
+
+// Serve static files from public directory
+app.use('/', express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -69,5 +74,6 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/game-lobby-scheduler', gameLobbySchedulerRoutes);
 app.use('/api/security', securityRoutes);
 app.use('/api/sumsub', sumsubRoutes);
+app.use('/api/platform-revenue', platformRevenueRoutes);
 
 export default app;
